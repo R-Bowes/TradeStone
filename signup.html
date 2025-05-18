@@ -4,82 +4,88 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up – TradeStone</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-  // 1. Import the SDK pieces you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-
-  // 2. Your Firebase configuration (copy‐paste from your console)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo",
-    authDomain: "tradestone-efb30.firebaseapp.com",
-    databaseURL: "https://tradestone-efb30-default-rtdb.firebaseio.com",
-    projectId: "tradestone-efb30",
-    storageBucket: "tradestone-efb30.firebasestorage.app",
-    messagingSenderId: "761717818779",
-    appId: "1:761717818779:web:05287865a076dbfed68d3e",
-    measurementId: "G-TM9DK5H25J"
-  };
-
-  // 3. Initialize Firebase
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
-
-  // 4. Wire up the signup form
-  const form = document.getElementById('signup-form');
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email       = form.email.value;
-    const password    = form.password.value;
-    const accountType = form.accountType.value;
-
-    try {
-      // Create the user
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      // Store their role
-      await setDoc(doc(db, 'users', user.uid), { accountType });
-      // Redirect to login or dashboard
-      window.location.href = 'login.html';
-    } catch(err) {
-      alert(err.message);
-    }
-  });
-</script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h1 class="text-2xl font-bold mb-6 text-center">Create Account</h1>
-
     <form id="signup-form" class="space-y-4">
-  <div>
-    <label class="block mb-1">Account Type</label>
-    <div class="flex gap-4">
-      <label class="inline-flex items-center">
-        <input type="radio" name="accountType" value="professional" required class="mr-2"/>
-        Professional
-      </label>
-      <label class="inline-flex items-center">
-        <input type="radio" name="accountType" value="personal" required class="mr-2"/>
-        Personal
-      </label>
-    </div>
-  </div>
-  <div>
-    <label for="email" class="block mb-1">Email</label>
-    <input id="email" name="email" type="email" required class="w-full p-2 border rounded"/>
-  </div>
-  <div>
-    <label for="password" class="block mb-1">Password</label>
-    <input id="password" name="password" type="password" required class="w-full p-2 border rounded"/>
-  </div>
-  <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">
-    Sign Up
-  </button>
-</form>
-
+      <div>
+        <label class="block mb-1">Account Type</label>
+        <div class="flex gap-4">
+          <label class="inline-flex items-center">
+            <input type="radio" name="accountType" value="professional" required class="mr-2"/>
+            Professional
+          </label>
+          <label class="inline-flex items-center">
+            <input type="radio" name="accountType" value="personal" required class="mr-2"/>
+            Personal
+          </label>
+        </div>
+      </div>
+      <div>
+        <label for="email" class="block mb-1">Email</label>
+        <input id="email" name="email" type="email" required
+               class="w-full p-2 border rounded"/>
+      </div>
+      <div>
+        <label for="password" class="block mb-1">Password</label>
+        <input id="password" name="password" type="password" required
+               class="w-full p-2 border rounded"/>
+      </div>
+      <button type="submit"
+              class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">
+        Sign Up
+      </button>
+    </form>
   </main>
+
+  <!-- Firebase signup logic -->
+  <script type="module">
+    // 1. Import only what you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    // 2. Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo",
+      authDomain: "tradestone-efb30.firebaseapp.com",
+      databaseURL: "https://tradestone-efb30-default-rtdb.firebaseio.com",
+      projectId: "tradestone-efb30",
+      storageBucket: "tradestone-efb30.firebasestorage.app",
+      messagingSenderId: "761717818779",
+      appId: "1:761717818779:web:05287865a076dbfed68d3e",
+      measurementId: "G-TM9DK5H25J"
+    };
+
+    // 3. Initialize Firebase
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // 4. Wire up the signup form
+    const form = document.getElementById('signup-form');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email       = form.email.value;
+      const password    = form.password.value;
+      const accountType = form.accountType.value;
+
+      try {
+        // Create the user
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        // Store their role in Firestore
+        await setDoc(doc(db, 'users', user.uid), { accountType });
+        // Redirect to login or dashboard
+        window.location.href = 'login.html';
+      } catch(err) {
+        alert(err.message);
+      }
+    });
+  </script>
+
 </body>
 </html>

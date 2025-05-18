@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TradeStone</title>
-  <!-- Make all relative URLs root-based -->
-  <base href="/" />
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+
   <!-- Header -->
   <header class="flex items-center justify-between p-4 bg-white shadow">
     <div class="flex items-center space-x-2">
@@ -42,7 +41,7 @@
       <li><a href="#" class="block text-lg font-medium">Marketplace</a></li>
       <li><a href="#" class="block text-lg font-medium">Post</a></li>
       <li><a href="#" class="block text-lg font-medium">Messages</a></li>
-      <li><a href="/login.html" class="block text-lg font-medium">Profile</a></li>
+      <li><a href="login.html" class="block text-lg font-medium">Profile</a></li>
     </ul>
   </nav>
 
@@ -58,11 +57,11 @@
   <!-- Call-to-action for Login / Sign Up -->
   <section class="px-4 pb-8 text-center">
     <div class="flex flex-col sm:flex-row justify-center gap-4">
-      <a href="/signup.html"
+      <a href="signup.html"
          class="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium focus:ring-2 focus:ring-orange-400">
         Sign Up
       </a>
-      <a href="/login.html"
+      <a href="login.html"
          class="px-6 py-3 border border-orange-500 text-orange-500 rounded-lg font-medium focus:ring-2 focus:ring-orange-400">
         Log In
       </a>
@@ -74,7 +73,6 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <!-- Card 1 -->
       <div class="bg-white rounded-xl shadow p-4 text-center">
-        <!-- Shopping Cart -->
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-10 w-10 mx-auto mb-2 text-orange-500"
              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -89,7 +87,6 @@
       </div>
       <!-- Card 2 -->
       <div class="bg-white rounded-xl shadow p-4 text-center">
-        <!-- User Icon -->
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-10 w-10 mx-auto mb-2 text-orange-500"
              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -105,7 +102,6 @@
       </div>
       <!-- Card 3 -->
       <div class="bg-white rounded-xl shadow p-4 text-center">
-        <!-- Document Text -->
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-10 w-10 mx-auto mb-2 text-orange-500"
              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -123,21 +119,18 @@
   <!-- Bottom Navigation Bar -->
   <nav class="fixed bottom-0 inset-x-0 bg-white border-t flex justify-around py-2">
     <a href="/" class="flex flex-col items-center text-orange-500">
-      <!-- Home -->
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 12l9-9 9 9h-3v9h-12v-9h-3z"/>
       </svg>
       <span class="text-xs">Home</span>
     </a>
     <a href="#" class="flex flex-col items-center text-gray-600">
-      <!-- Marketplace -->
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 4h16v3h-16v-3zm0 5h16v3h-16v-3zm0 5h16v3h-16v-3z"/>
       </svg>
       <span class="text-xs">Marketplace</span>
     </a>
     <a href="#" class="flex flex-col items-center text-gray-600">
-      <!-- Post -->
       <svg xmlns="http://www.w3.org/2000/svg"
            class="h-6 w-6 mb-1 text-gray-600"
            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -146,14 +139,12 @@
       <span class="text-xs">Post</span>
     </a>
     <a href="#" class="flex flex-col items-center text-gray-600">
-      <!-- Messages -->
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 4h16v12h-4l-4 4-4-4h-4z"/>
       </svg>
       <span class="text-xs">Messages</span>
     </a>
-    <a href="/login.html" class="flex flex-col items-center text-gray-600">
-      <!-- Profile -->
+    <a href="login.html" class="flex flex-col items-center text-gray-600">
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5  
                  5 2.3 5 5 5zm0 2c-3.3 0-10  
@@ -165,12 +156,13 @@
 
   <!-- Mobile menu toggle script -->
   <script>
-    const openBtn = document.getElementById('open-menu');
+    const openBtn  = document.getElementById('open-menu');
     const closeBtn = document.getElementById('close-menu');
-    const menu    = document.getElementById('mobile-menu');
+    const menu     = document.getElementById('mobile-menu');
 
     openBtn.addEventListener('click', () => menu.classList.remove('hidden'));
     closeBtn.addEventListener('click', () => menu.classList.add('hidden'));
   </script>
+
 </body>
 </html>

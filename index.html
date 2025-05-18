@@ -135,5 +135,18 @@
 
   <!-- Future sections will go here -->
 
+<!-- Mobile menu toggle script -->
+<script>
+  const openBtn  = document.querySelector('button[aria-label="Open menu"]');
+  const closeBtn = document.getElementById('close-menu');
+  const menu     = document.getElementById('mobile-menu');
+
+  openBtn.addEventListener('click', () => {
+    menu.classList.remove('-translate-x-full');
+  });
+  closeBtn.addEventListener('click', () => {
+    menu.classList.add('-translate-x-full');
+  });
+</script>
 </body>
 </html>

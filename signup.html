@@ -5,12 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase App (the core Firebase SDK) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <!-- Firebase Auth -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <!-- Firebase Firestore -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script type="module">
+  // 1. Import the SDK pieces you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+  // 2. Your Firebase configuration (copy‐paste from your console)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo",
+    authDomain: "tradestone-efb30.firebaseapp.com",
+    databaseURL: "https://tradestone-efb30-default-rtdb.firebaseio.com",
+    projectId: "tradestone-efb30",
+    storageBucket: "tradestone-efb30.firebasestorage.app",
+    messagingSenderId: "761717818779",
+    appId: "1:761717818779:web:05287865a076dbfed68d3e",
+    measurementId: "G-TM9DK5H25J"
+  };
+
+  // 3. Initialize Firebase
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // 4. Wire up the signup form
+  const form = document.getElementById('signup-form');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email       = form.email.value;
+    const password    = form.password.value;
+    const accountType = form.accountType.value;
+
+    try {
+      // Create the user
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      // Store their role
+      await setDoc(doc(db, 'users', user.uid), { accountType });
+      // Redirect to login or dashboard
+      window.location.href = 'login.html';
+    } catch(err) {
+      alert(err.message);
+    }
+  });
+</script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">

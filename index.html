@@ -28,6 +28,24 @@
       </svg>
     </button>
   </header>
+  <!-- Mobile Menu (hidden by default) -->
+<nav id="mobile-menu"
+     class="fixed inset-0 bg-white p-4 transform -translate-x-full transition-transform duration-300 ease-in-out z-20">
+  <button id="close-menu" aria-label="Close menu" class="mb-4">
+    <!-- “X” icon -->
+    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <ul class="space-y-4">
+    <li><a href="#" class="block text-lg font-medium">Home</a></li>
+    <li><a href="#" class="block text-lg font-medium">Marketplace</a></li>
+    <li><a href="#" class="block text-lg font-medium">Post</a></li>
+    <li><a href="#" class="block text-lg font-medium">Messages</a></li>
+    <li><a href="#" class="block text-lg font-medium">Profile</a></li>
+  </ul>
+</nav>
   <!-- Hero / Intro Section -->
 <section class="px-4 py-6 text-center">
   <h2 class="text-3xl font-extrabold mb-2">Where Trade Meets Tech</h2>

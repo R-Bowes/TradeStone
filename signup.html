@@ -61,11 +61,25 @@
 
   <!-- Firebase signup logic -->
   <script type="module">
-    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
     import { initFirebase } from './firebase-init.js';
 
     const { auth, db } = initFirebase();
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) {
+          const { accountType } = snap.data();
+          window.location.href = accountType === 'professional'
+            ? 'professional-dashboard.html'
+            : 'personal-dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      }
+    });
 
     const form = document.getElementById('signup-form');
     form.addEventListener('submit', async e => {

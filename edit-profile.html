@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edit Portfolio – TradeStone</title>
+  <title>Edit Profile – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
@@ -19,19 +19,54 @@
   </header>
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
-    <h2 class="text-xl font-semibold mb-4 text-center">Edit Portfolio</h2>
-    <input id="upload-input" type="file" accept="image/*" multiple class="mb-4" />
-    <div id="image-grid" class="grid grid-cols-1 gap-4"></div>
+    <h2 class="text-2xl font-semibold mb-6 text-center">Edit Profile</h2>
+    <form id="profile-form" class="space-y-4" enctype="multipart/form-data">
+      <div>
+        <label for="businessName" class="block mb-1">Business Name</label>
+        <input id="businessName" name="businessName" type="text" required class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="description" class="block mb-1">Company Info</label>
+        <textarea id="description" name="description" rows="3" class="w-full p-2 border rounded"></textarea>
+      </div>
+      <div>
+        <label for="teamMembers" class="block mb-1">Team Members</label>
+        <textarea id="teamMembers" name="teamMembers" rows="2" class="w-full p-2 border rounded"></textarea>
+      </div>
+      <div>
+        <label for="specializations" class="block mb-1">Trade Specializations</label>
+        <input id="specializations" name="specializations" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="location" class="block mb-1">Location</label>
+        <input id="location" name="location" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="travelRadius" class="block mb-1">Travel Radius (miles)</label>
+        <input id="travelRadius" name="travelRadius" type="number" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="portfolio" class="block mb-1">Upload Portfolio Images</label>
+        <input id="portfolio" name="portfolio" type="file" accept="image/*" multiple class="w-full" />
+      </div>
+      <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">Update Profile</button>
+    </form>
+
+    <div class="mt-6">
+      <h3 class="text-lg font-semibold mb-2 text-center">Your Portfolio</h3>
+      <div id="image-grid" class="grid grid-cols-1 gap-4"></div>
+    </div>
   </main>
 
   <script type="module">
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { ref, listAll, getDownloadURL, uploadBytes, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
     import { initFirebase } from './firebase-init.js';
 
-    const { auth, storage } = initFirebase();
+    const { auth, db, storage } = initFirebase();
+    const form = document.getElementById('profile-form');
     const grid = document.getElementById('image-grid');
-    const input = document.getElementById('upload-input');
     let currentUser;
 
     onAuthStateChanged(auth, async user => {
@@ -40,12 +75,52 @@
         return;
       }
       currentUser = user;
+
+      const docRef = doc(db, 'profiles', user.uid);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        form.businessName.value = data.businessName || '';
+        form.description.value = data.description || '';
+        form.teamMembers.value = data.teamMembers || '';
+        form.specializations.value = data.specializations || '';
+        form.location.value = data.location || '';
+        form.travelRadius.value = data.travelRadius || '';
+      }
+
       await loadImages();
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const updateData = {
+          businessName: form.businessName.value,
+          description: form.description.value,
+          teamMembers: form.teamMembers.value,
+          specializations: form.specializations.value,
+          location: form.location.value,
+          travelRadius: form.travelRadius.value
+        };
+
+        const files = Array.from(form.portfolio.files);
+        if (files.length) {
+          const urls = [];
+          for (const file of files) {
+            const fileRef = ref(storage, `profiles/${user.uid}/portfolio/${Date.now()}-${file.name}`);
+            await uploadBytes(fileRef, file);
+            urls.push(await getDownloadURL(fileRef));
+          }
+          updateData.portfolioUrls = urls;
+        }
+
+        await setDoc(docRef, updateData, { merge: true });
+        window.location.href = `professional-profile.html?id=${user.uid}`;
+      });
     });
 
     async function loadImages() {
       grid.innerHTML = '';
-      const listRef = ref(storage, `profiles/${currentUser.uid}/portfolio`);
+      const listRef = ref(storage, `profiles/${auth.currentUser.uid}/portfolio`);
       try {
         const res = await listAll(listRef);
         if (res.items.length === 0) {
@@ -64,8 +139,7 @@
           del.addEventListener('click', async () => {
             if (confirm('Delete this image?')) {
               await deleteObject(item);
-              localStorage.setItem('portfolioUpdated', Date.now().toString());
-              loadImages();
+              await loadImages();
             }
           });
           container.appendChild(img);
@@ -76,17 +150,6 @@
         grid.innerHTML = `<p class="text-red-500">${err.message}</p>`;
       }
     }
-
-    input.addEventListener('change', async e => {
-      const files = Array.from(e.target.files);
-      for (const file of files) {
-        const fileRef = ref(storage, `profiles/${currentUser.uid}/portfolio/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-      }
-      input.value = '';
-      localStorage.setItem('portfolioUpdated', Date.now().toString());
-      loadImages();
-    });
   </script>
 </body>
 </html>

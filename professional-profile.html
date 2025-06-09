@@ -24,13 +24,15 @@
     <p id="description" class="text-gray-800"></p>
     <div id="social-links" class="flex justify-center space-x-4"></div>
     <a id="portfolio-link" href="#" class="text-orange-500 font-medium">View Portfolio</a>
+    <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Portfolio</a>
   </main>
 
   <script type="module">
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
     import { initFirebase } from './firebase-init.js';
 
-    const { db } = initFirebase();
+    const { db, auth } = initFirebase();
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -71,6 +73,14 @@
     }
 
     loadProfile();
+
+    onAuthStateChanged(auth, user => {
+      if (user && user.uid === id) {
+        const edit = document.getElementById('edit-link');
+        edit.href = 'edit-profile.html';
+        edit.classList.remove('hidden');
+      }
+    });
   </script>
 </body>
 </html>

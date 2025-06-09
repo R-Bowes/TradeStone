@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Portfolio – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <header class="flex items-center justify-between p-4 bg-white shadow">
+    <div class="flex items-center space-x-2">
+      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
+      </svg>
+      <h1 class="text-xl font-bold">TradeStone</h1>
+    </div>
+    <a href="index.html" class="text-orange-500 font-medium">Home</a>
+  </header>
+
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 class="text-xl font-semibold mb-4 text-center">Edit Portfolio</h2>
+    <input id="upload-input" type="file" accept="image/*" multiple class="mb-4" />
+    <div id="image-grid" class="grid grid-cols-1 gap-4"></div>
+  </main>
+
+  <script type="module">
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { ref, listAll, getDownloadURL, uploadBytes, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { auth, storage } = initFirebase();
+    const grid = document.getElementById('image-grid');
+    const input = document.getElementById('upload-input');
+    let currentUser;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = user;
+      await loadImages();
+    });
+
+    async function loadImages() {
+      grid.innerHTML = '';
+      const listRef = ref(storage, `profiles/${currentUser.uid}/portfolio`);
+      try {
+        const res = await listAll(listRef);
+        if (res.items.length === 0) {
+          grid.innerHTML = '<p class="text-gray-700">No portfolio images found.</p>';
+        }
+        for (const item of res.items) {
+          const url = await getDownloadURL(item);
+          const container = document.createElement('div');
+          container.className = 'relative';
+          const img = document.createElement('img');
+          img.src = url;
+          img.className = 'w-full rounded-lg';
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.className = 'absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded';
+          del.addEventListener('click', async () => {
+            if (confirm('Delete this image?')) {
+              await deleteObject(item);
+              localStorage.setItem('portfolioUpdated', Date.now().toString());
+              loadImages();
+            }
+          });
+          container.appendChild(img);
+          container.appendChild(del);
+          grid.appendChild(container);
+        }
+      } catch (err) {
+        grid.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    input.addEventListener('change', async e => {
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        const fileRef = ref(storage, `profiles/${currentUser.uid}/portfolio/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+      }
+      input.value = '';
+      localStorage.setItem('portfolioUpdated', Date.now().toString());
+      loadImages();
+    });
+  </script>
+</body>
+</html>

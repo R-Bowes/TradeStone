@@ -18,13 +18,15 @@
     <a href="index.html" class="text-orange-500 font-medium">Home</a>
   </header>
 
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow space-y-4 text-center">
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center space-y-4">
+    <img id="logo" alt="" class="w-32 h-32 mx-auto object-contain hidden" />
     <h2 id="businessName" class="text-2xl font-bold"></h2>
     <p id="tradeType" class="text-sm text-gray-700"></p>
+    <p id="location" class="text-sm text-gray-700"></p>
     <p id="description" class="text-gray-800"></p>
-    <div id="social-links" class="flex justify-center space-x-4"></div>
-    <a id="portfolio-link" href="#" class="text-orange-500 font-medium">View Portfolio</a>
-    <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Portfolio</a>
+    <div id="social-links" class="flex justify-center flex-wrap gap-4"></div>
+    <a id="portfolio-link" href="#" class="text-orange-500 font-medium block">View Portfolio</a>
+    <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Profile</a>
   </main>
 
   <script type="module">
@@ -33,7 +35,6 @@
     import { initFirebase } from './firebase-init.js';
 
     const { db, auth } = initFirebase();
-
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const main = document.querySelector('main');
@@ -43,16 +44,28 @@
         main.innerHTML = '<p class="text-red-500">No profile specified.</p>';
         return;
       }
+
       try {
         const snap = await getDoc(doc(db, 'profiles', id));
         if (!snap.exists()) {
           main.innerHTML = '<p class="text-red-500">Profile not found.</p>';
           return;
         }
+
         const data = snap.data();
+
+        if (data.logoUrl) {
+          const logo = document.getElementById('logo');
+          logo.src = data.logoUrl;
+          logo.alt = data.businessName || 'Logo';
+          logo.classList.remove('hidden');
+        }
+
         document.getElementById('businessName').textContent = data.businessName || '';
         document.getElementById('tradeType').textContent = data.tradeType || '';
+        document.getElementById('location').textContent = data.location || '';
         document.getElementById('description').textContent = data.description || '';
+        document.getElementById('portfolio-link').href = `portfolio.html?id=${id}`;
 
         const links = data.social || {};
         const container = document.getElementById('social-links');
@@ -66,7 +79,6 @@
             container.appendChild(a);
           }
         }
-        document.getElementById('portfolio-link').href = `portfolio.html?id=${id}`;
       } catch (err) {
         main.innerHTML = `<p class="text-red-500">${err.message}</p>`;
       }

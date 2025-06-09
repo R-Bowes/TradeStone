@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <!-- Header -->
   <header class="flex items-center justify-between p-4 bg-white shadow">
     <div class="flex items-center space-x-2">
       <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
@@ -19,10 +20,12 @@
     <a href="index.html" class="text-orange-500 font-medium">Home</a>
   </header>
 
+  <!-- Profile List -->
   <main class="max-w-md mx-auto mt-4 p-4 space-y-4" id="pro-list">
     <!-- Profiles will be injected here -->
   </main>
 
+  <!-- Firebase Script -->
   <script type="module">
     import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
     import { initFirebase } from './firebase-init.js';
@@ -32,21 +35,24 @@
     async function loadProfessionals() {
       const querySnapshot = await getDocs(collection(db, 'profiles'));
       const list = document.getElementById('pro-list');
+
       querySnapshot.forEach(doc => {
         const data = doc.data();
+
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
-        const title = document.createElement('h2');
-        title.className = 'text-lg font-bold';
-        title.textContent = data.businessName || '';
 
-        const type = document.createElement('p');
-        type.className = 'text-sm text-gray-700';
-        type.textContent = data.tradeType || '';
+        const name = document.createElement('h2');
+        name.className = 'text-lg font-bold';
+        name.textContent = data.businessName || '';
 
-        const loc = document.createElement('p');
-        loc.className = 'text-sm text-gray-700';
-        loc.textContent = data.location || '';
+        const trade = document.createElement('p');
+        trade.className = 'text-sm text-gray-700';
+        trade.textContent = data.tradeType || '';
+
+        const locationEl = document.createElement('p');
+        locationEl.className = 'text-sm text-gray-700';
+        locationEl.textContent = data.location || '';
 
         const profileLink = document.createElement('a');
         profileLink.href = `professional-profile.html?id=${doc.id}`;
@@ -58,11 +64,7 @@
         portfolioLink.className = 'text-orange-500 block';
         portfolioLink.textContent = 'View Portfolio';
 
-        card.appendChild(title);
-        card.appendChild(type);
-        card.appendChild(loc);
-        card.appendChild(profileLink);
-        card.appendChild(portfolioLink);
+        card.append(name, trade, locationEl, profileLink, portfolioLink);
         list.appendChild(card);
       });
     }

@@ -36,13 +36,33 @@
         const data = doc.data();
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
-        card.innerHTML = `
-          <h2 class="text-lg font-bold">${data.businessName || ''}</h2>
-          <p class="text-sm text-gray-700">${data.tradeType || ''}</p>
-          <p class="text-sm text-gray-700">${data.location || ''}</p>
-          <a href="professional-profile.html?id=${doc.id}" class="text-orange-500 block">View Profile</a>
-          <a href="portfolio.html?id=${doc.id}" class="text-orange-500 block">View Portfolio</a>
-        `;
+        const title = document.createElement('h2');
+        title.className = 'text-lg font-bold';
+        title.textContent = data.businessName || '';
+
+        const type = document.createElement('p');
+        type.className = 'text-sm text-gray-700';
+        type.textContent = data.tradeType || '';
+
+        const loc = document.createElement('p');
+        loc.className = 'text-sm text-gray-700';
+        loc.textContent = data.location || '';
+
+        const profileLink = document.createElement('a');
+        profileLink.href = `professional-profile.html?id=${doc.id}`;
+        profileLink.className = 'text-orange-500 block';
+        profileLink.textContent = 'View Profile';
+
+        const portfolioLink = document.createElement('a');
+        portfolioLink.href = `portfolio.html?id=${doc.id}`;
+        portfolioLink.className = 'text-orange-500 block';
+        portfolioLink.textContent = 'View Portfolio';
+
+        card.appendChild(title);
+        card.appendChild(type);
+        card.appendChild(loc);
+        card.appendChild(profileLink);
+        card.appendChild(portfolioLink);
         list.appendChild(card);
       });
     }

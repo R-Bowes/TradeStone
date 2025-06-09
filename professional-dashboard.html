@@ -13,16 +13,17 @@
     <p class="mb-4">Logged in as: <span id="user-email" class="font-medium"></span></p>
 
     <nav class="space-y-2 text-left mt-6">
-      <a href="create-profile.html" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Edit Profile</a>
+      <a href="edit-profile.html" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Edit Profile</a>
       <a id="portfolio-link" href="#" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Manage Portfolio</a>
       <a href="#" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Job Tracking</a>
       <a href="#" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Invoicing</a>
       <a href="#" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Subscription Status</a>
-      <a href="#" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Account Settings</a>
+      <a href="account-settings.html" class="block p-3 bg-gray-100 rounded-lg hover:bg-gray-200">Account Settings</a>
     </nav>
 
-    <button id="logout-btn"
-            class="mt-6 px-4 py-2 bg-red-500 text-white rounded-lg focus:ring-2 focus:ring-red-400">Logout</button>
+    <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-500 text-white rounded-lg focus:ring-2 focus:ring-red-400">
+      Logout
+    </button>
   </main>
 
   <!-- Firebase and Auth guard + Logout logic -->
@@ -32,7 +33,6 @@
 
     const { auth } = initFirebase();
 
-    // Redirect if not logged in, otherwise show email
     onAuthStateChanged(auth, user => {
       if (!user) {
         window.location.href = 'login.html';
@@ -42,7 +42,6 @@
       }
     });
 
-    // Logout handler
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = 'login.html';

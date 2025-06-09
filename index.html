@@ -9,39 +9,7 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between p-4 bg-white shadow">
-    <div class="flex items-center space-x-2">
-      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
-      </svg>
-      <h1 class="text-xl font-bold">TradeStone</h1>
-    </div>
-    <button id="open-menu" aria-label="Open menu" class="p-2 focus:ring-2 focus:ring-orange-500 rounded">
-      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-  </header>
-
-  <!-- Mobile Menu -->
-  <nav id="mobile-menu" class="hidden fixed inset-0 bg-white p-4 z-20 overflow-y-auto">
-    <button id="close-menu" aria-label="Close menu" class="mb-4 focus:ring-2 focus:ring-orange-500 rounded">
-      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    </button>
-    <ul class="space-y-4">
-      <li><a href="index.html" class="block text-lg font-medium">Home</a></li>
-      <li><a href="marketplace.html" class="block text-lg font-medium">Marketplace</a></li>
-      <li><a href="post.html" class="block text-lg font-medium">Post</a></li>
-      <li><a href="messages.html" class="block text-lg font-medium">Messages</a></li>
-      <li><a href="login.html" class="block text-lg font-medium">Profile</a></li>
-    </ul>
-  </nav>
+  <div id="header"></div>
 
   <!-- Hero / Intro -->
   <section class="px-4 py-6 text-center">
@@ -146,14 +114,13 @@
     </a>
   </nav>
 
-  <!-- Mobile menu toggle script -->
-  <script>
-    const openBtn  = document.getElementById('open-menu');
-    const closeBtn = document.getElementById('close-menu');
-    const menu     = document.getElementById('mobile-menu');
-    openBtn.addEventListener('click', () => menu.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => menu.classList.add('hidden'));
-  </script>
 
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("header").innerHTML = html;
+    });
+</script>
 </body>
 </html>

@@ -9,11 +9,14 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
 
+  <!-- Reusable Header -->
   <div id="header"></div>
   <script>
-    fetch('header.html')
+    fetch("header.html")
       .then(res => res.text())
-      .then(html => { document.getElementById('header').innerHTML = html; });
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      });
   </script>
 
   <!-- Hero / Intro -->
@@ -118,8 +121,5 @@
       <span class="text-xs">Profile</span>
     </a>
   </nav>
-
-
-
 </body>
 </html>

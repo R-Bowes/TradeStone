@@ -7,13 +7,18 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+
+  <!-- Reusable Header -->
   <div id="header"></div>
   <script>
     fetch('header.html')
       .then(res => res.text())
-      .then(html => { document.getElementById('header').innerHTML = html; });
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
   </script>
 
+  <!-- Profile Content -->
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center space-y-4">
     <img id="logo" alt="" class="w-32 h-32 mx-auto object-contain hidden" />
     <h2 id="businessName" class="text-2xl font-bold"></h2>
@@ -25,6 +30,7 @@
     <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Profile</a>
   </main>
 
+  <!-- Firebase Logic -->
   <script type="module">
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
@@ -82,6 +88,7 @@
 
     loadProfile();
 
+    // Show edit link if current user matches profile
     onAuthStateChanged(auth, user => {
       if (user && user.uid === id) {
         const edit = document.getElementById('edit-link');

@@ -120,7 +120,7 @@
         }
 
         await setDoc(doc(db, 'profiles', user.uid), data);
-        window.location.href = 'professional-dashboard.html';
+        window.location.href = `professional-profile.html?id=${user.uid}`;
       });
     });
   </script>

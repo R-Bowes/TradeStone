@@ -6,8 +6,9 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 
 ## Setup
 
-1. Ensure you have a Firebase project and replace the configuration found in the HTML files with your own credentials.
-2. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
+1. Create a Firebase project and copy its configuration.
+2. Edit `firebase-init.js` in the project root and replace the placeholder credentials with your own.
+3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
 
 ## Usage
 
@@ -15,5 +16,5 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 - Login through `login.html` to access the respective dashboard.
 - Professionals can create a profile which is stored in Firestore and displayed on the browse page.
 
-Firebase configuration snippets are included in the HTML files and must be customized for your own project.
+All pages import `firebase-init.js` which centralizes Firebase initialization. Update that file with your credentials and the app will use them across every page.
 

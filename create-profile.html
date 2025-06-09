@@ -69,26 +69,12 @@
 
   <!-- Firebase profile creation logic -->
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
-    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { initFirebase } from './firebase-init.js';
 
-    const firebaseConfig = {
-      apiKey: 'AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo',
-      authDomain: 'tradestone-efb30.firebaseapp.com',
-      databaseURL: 'https://tradestone-efb30-default-rtdb.firebaseio.com',
-      projectId: 'tradestone-efb30',
-      storageBucket: 'tradestone-efb30.firebasestorage.app',
-      messagingSenderId: '761717818779',
-      appId: '1:761717818779:web:05287865a076dbfed68d3e',
-      measurementId: 'G-TM9DK5H25J'
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    const { auth, db, storage } = initFirebase();
 
     onAuthStateChanged(auth, user => {
       if (!user) {
@@ -134,7 +120,7 @@
         }
 
         await setDoc(doc(db, 'profiles', user.uid), data);
-        window.location.href = 'professional-dashboard.html';
+        window.location.href = `professional-profile.html?id=${user.uid}`;
       });
     });
   </script>

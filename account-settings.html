@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow space-y-6">
+    <h1 class="text-2xl font-bold text-center">Account Settings</h1>
+    <p class="text-center">Logged in as: <span id="current-email" class="font-medium"></span></p>
+
+    <form id="update-email-form" class="space-y-2">
+      <label class="block">New Email
+        <input id="newEmail" name="newEmail" type="email" class="w-full p-2 border rounded" required />
+      </label>
+      <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Email</button>
+    </form>
+
+    <form id="update-password-form" class="space-y-2">
+      <label class="block">New Password
+        <input id="newPassword" name="newPassword" type="password" class="w-full p-2 border rounded" required />
+      </label>
+      <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Password</button>
+    </form>
+
+    <form id="notif-form" class="space-y-2">
+      <p class="font-medium">Notifications</p>
+      <label class="inline-flex items-center space-x-2">
+        <input type="checkbox" id="emailUpdates" class="form-checkbox" />
+        <span>Email Updates</span>
+      </label>
+      <label class="inline-flex items-center space-x-2">
+        <input type="checkbox" id="smsUpdates" class="form-checkbox" />
+        <span>SMS Updates</span>
+      </label>
+    </form>
+
+    <button id="delete-account-btn" class="w-full py-2 bg-red-500 text-white rounded">Delete Account</button>
+  </main>
+
+  <div class="text-center mt-6">
+    <a href="professional-dashboard.html" class="text-orange-500 font-medium">Back to Dashboard</a>
+  </div>
+
+  <script type="module">
+    import { onAuthStateChanged, updateEmail, updatePassword, deleteUser } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { doc, getDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { auth, db } = initFirebase();
+    let userRef;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        document.getElementById('current-email').textContent = user.email;
+        userRef = doc(db, 'users', user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists() && snap.data().notifications) {
+          const n = snap.data().notifications;
+          document.getElementById('emailUpdates').checked = !!n.emailUpdates;
+          document.getElementById('smsUpdates').checked = !!n.smsUpdates;
+        }
+      }
+    });
+
+    document.getElementById('update-email-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const newEmail = e.target.newEmail.value;
+      try {
+        await updateEmail(auth.currentUser, newEmail);
+        alert('Email updated');
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById('update-password-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const newPassword = e.target.newPassword.value;
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        alert('Password updated');
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById('notif-form').addEventListener('change', async () => {
+      if (!auth.currentUser) return;
+      const prefs = {
+        emailUpdates: document.getElementById('emailUpdates').checked,
+        smsUpdates: document.getElementById('smsUpdates').checked
+      };
+      await updateDoc(doc(db, 'users', auth.currentUser.uid), { notifications: prefs }, { merge: true });
+    });
+
+    document.getElementById('delete-account-btn').addEventListener('click', async () => {
+      if (!auth.currentUser) return;
+      const confirmation = confirm('Delete your account and profile? This cannot be undone.');
+      if (!confirmation) return;
+      try {
+        await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
+        await deleteDoc(doc(db, 'users', auth.currentUser.uid));
+        await deleteUser(auth.currentUser);
+        window.location.href = 'signup.html';
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+  </script>
+</body>
+</html>

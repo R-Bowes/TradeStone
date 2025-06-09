@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <header class="flex items-center justify-between p-4 bg-white shadow">
+    <div class="flex items-center space-x-2">
+      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
+      </svg>
+      <h1 class="text-xl font-bold">TradeStone</h1>
+    </div>
+    <a href="index.html" class="text-orange-500 font-medium">Home</a>
+  </header>
+
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
+    <h2 class="text-2xl font-bold mb-4">Messages</h2>
+    <p>Coming soon...</p>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t flex justify-around py-2">
+    <a href="index.html" class="flex flex-col items-center text-gray-600">
+      <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 12l9-9 9 9h-3v9h-12v-9h-3z" />
+      </svg>
+      <span class="text-xs">Home</span>
+    </a>
+    <a href="marketplace.html" class="flex flex-col items-center text-gray-600">
+      <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 4h16v3h-16v-3zm0 5h16v3h-16v-3zm0 5h16v3h-16v-3z" />
+      </svg>
+      <span class="text-xs">Marketplace</span>
+    </a>
+    <a href="post.html" class="flex flex-col items-center text-gray-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="text-xs">Post</span>
+    </a>
+    <a href="messages.html" class="flex flex-col items-center text-orange-500">
+      <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 4h16v12h-4l-4 4-4-4h-4z" />
+      </svg>
+      <span class="text-xs">Messages</span>
+    </a>
+    <a href="login.html" class="flex flex-col items-center text-gray-600">
+      <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+      </svg>
+      <span class="text-xs">Profile</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    import { initFirebase } from './firebase-init.js';
+    initFirebase();
+  </script>
+</body>
+</html>

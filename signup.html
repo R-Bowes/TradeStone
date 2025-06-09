@@ -89,7 +89,11 @@
       try {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, 'users', user.uid), { accountType });
-        window.location.href = 'login.html';
+        if (accountType === 'professional') {
+          window.location.href = 'create-profile.html';
+        } else {
+          window.location.href = 'login.html';
+        }
       } catch(err) {
         alert(err.message);
       }

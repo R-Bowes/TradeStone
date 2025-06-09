@@ -18,9 +18,57 @@
     <a href="index.html" class="text-orange-500 font-medium">Home</a>
   </header>
 
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
-    <h2 class="text-xl font-semibold mb-2">Portfolio</h2>
-    <p class="text-gray-700">Portfolio content coming soon.</p>
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 class="text-xl font-semibold mb-4 text-center">Portfolio</h2>
+    <div id="image-grid" class="grid grid-cols-1 gap-4"></div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
+    import { getStorage, ref, listAll, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo",
+      authDomain: "tradestone-efb30.firebaseapp.com",
+      databaseURL: "https://tradestone-efb30-default-rtdb.firebaseio.com",
+      projectId: "tradestone-efb30",
+      storageBucket: "tradestone-efb30.appspot.com",
+      messagingSenderId: "761717818779",
+      appId: "1:761717818779:web:05287865a076dbfed68d3e",
+      measurementId: "G-TM9DK5H25J"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const grid = document.getElementById('image-grid');
+
+    async function loadPortfolio() {
+      if (!id) {
+        grid.innerHTML = '<p class="text-red-500">No professional specified.</p>';
+        return;
+      }
+      try {
+        const listRef = ref(storage, `profiles/${id}/portfolio`);
+        const res = await listAll(listRef);
+        if (res.items.length === 0) {
+          grid.innerHTML = '<p class="text-gray-700">No portfolio images found.</p>';
+        }
+        for (const item of res.items) {
+          const url = await getDownloadURL(item);
+          const img = document.createElement('img');
+          img.src = url;
+          img.className = 'w-full rounded-lg';
+          grid.appendChild(img);
+        }
+      } catch (err) {
+        grid.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    loadPortfolio();
+  </script>
 </body>
 </html>

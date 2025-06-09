@@ -9,7 +9,15 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
 
+  <!-- Reusable Header -->
   <div id="header"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      });
+  </script>
 
   <!-- Hero / Intro -->
   <section class="px-4 py-6 text-center">
@@ -113,14 +121,5 @@
       <span class="text-xs">Profile</span>
     </a>
   </nav>
-
-
-<script>
-  fetch("header.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("header").innerHTML = html;
-    });
-</script>
 </body>
 </html>

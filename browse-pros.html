@@ -8,7 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <!-- Reusable Header -->
   <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
+  </script>
 
   <!-- Profile List -->
   <main class="max-w-md mx-auto mt-4 p-4 space-y-4" id="pro-list">
@@ -61,12 +69,5 @@
 
     loadProfessionals();
   </script>
-<script>
-  fetch("header.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("header").innerHTML = html;
-    });
-</script>
 </body>
 </html>

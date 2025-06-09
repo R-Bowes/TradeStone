@@ -7,7 +7,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+
+  <!-- Header -->
   <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
+  </script>
 
   <!-- Portfolio Gallery -->
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
@@ -15,6 +24,7 @@
     <div id="portfolio-grid" class="grid grid-cols-2 gap-4"></div>
   </main>
 
+  <!-- Portfolio Script -->
   <script type="module">
     import { ref, listAll, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
     import { initFirebase } from './firebase-init.js';
@@ -55,19 +65,13 @@
 
     loadPortfolio();
 
-    // Listen for cross-tab portfolio updates
+    // Listen for cross-tab updates
     window.addEventListener('storage', e => {
       if (e.key === 'portfolioUpdated') {
         loadPortfolio();
       }
     });
   </script>
-<script>
-  fetch("header.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("header").innerHTML = html;
-    });
-</script>
+
 </body>
 </html>

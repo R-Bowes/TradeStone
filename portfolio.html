@@ -41,6 +41,7 @@
       try {
         const listRef = ref(storage, `profiles/${id}/portfolio`);
         const res = await listAll(listRef);
+        grid.innerHTML = '';
         if (res.items.length === 0) {
           grid.innerHTML = '<p class="text-gray-700">No portfolio images found.</p>';
         }
@@ -57,6 +58,12 @@
     }
 
     loadPortfolio();
+
+    window.addEventListener('storage', e => {
+      if (e.key === 'portfolioUpdated') {
+        loadPortfolio();
+      }
+    });
   </script>
 </body>
 </html>

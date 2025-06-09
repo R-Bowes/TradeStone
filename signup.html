@@ -89,7 +89,10 @@
       const accountType = form.accountType.value;
       try {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, 'users', user.uid), { accountType });
+        await setDoc(doc(db, 'users', user.uid), {
+          accountType,
+          notifications: { emailUpdates: true, smsUpdates: true }
+        });
         if (accountType === 'professional') {
           window.location.href = 'create-profile.html';
         } else {

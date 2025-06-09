@@ -20,7 +20,49 @@
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
     <h2 class="text-xl font-semibold mb-2">Portfolio</h2>
-    <p class="text-gray-700">Portfolio content coming soon.</p>
+    <div id="portfolio-images" class="grid grid-cols-2 gap-4"></div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo',
+      authDomain: 'tradestone-efb30.firebaseapp.com',
+      databaseURL: 'https://tradestone-efb30-default-rtdb.firebaseio.com',
+      projectId: 'tradestone-efb30',
+      storageBucket: 'tradestone-efb30.appspot.com',
+      messagingSenderId: '761717818779',
+      appId: '1:761717818779:web:05287865a076dbfed68d3e',
+      measurementId: 'G-TM9DK5H25J'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    async function loadPortfolio() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) return;
+
+      const docSnap = await getDoc(doc(db, 'profiles', id));
+      if (!docSnap.exists()) return;
+
+      const data = docSnap.data();
+      const container = document.getElementById('portfolio-images');
+      if (Array.isArray(data.portfolioUrls)) {
+        data.portfolioUrls.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Portfolio image';
+          img.className = 'w-full h-32 object-cover rounded';
+          container.appendChild(img);
+        });
+      }
+    }
+
+    loadPortfolio();
+  </script>
 </body>
 </html>

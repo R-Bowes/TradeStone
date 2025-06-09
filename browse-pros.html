@@ -42,7 +42,7 @@
     const db  = getFirestore(app);
 
     async function loadProfessionals() {
-      const querySnapshot = await getDocs(collection(db, 'professionals'));
+      const querySnapshot = await getDocs(collection(db, 'profiles'));
       const list = document.getElementById('pro-list');
       querySnapshot.forEach(doc => {
         const data = doc.data();
@@ -50,7 +50,7 @@
         card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
         card.innerHTML = `
           <h2 class="text-lg font-bold">${data.businessName || ''}</h2>
-          <p class="text-sm text-gray-700">${data.trade || ''}</p>
+          <p class="text-sm text-gray-700">${data.tradeType || ''}</p>
           <p class="text-sm text-gray-700">${data.location || ''}</p>
           <a href="professional-profile.html?id=${doc.id}" class="text-orange-500 block">View Profile</a>
           <a href="portfolio.html?id=${doc.id}" class="text-orange-500 block">View Portfolio</a>

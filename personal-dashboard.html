@@ -37,5 +37,14 @@
       window.location.href = 'login.html';
     });
   </script>
+  <!-- Bottom Navigation Bar -->
+  <div id="bottom-nav"></div>
+  <script>
+    fetch('bottom-nav.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('bottom-nav').innerHTML = html;
+      });
+  </script>
 </body>
 </html>

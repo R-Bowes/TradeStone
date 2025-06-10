@@ -3,29 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post – TradeStone</title>
+  <title>Post Item – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
-
-  <!-- Reusable Header -->
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <!-- Main Content -->
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
-    <h2 class="text-2xl font-bold mb-4">Post</h2>
-    <p>Coming soon...</p>
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 class="text-2xl font-bold mb-4 text-center">Post Item</h2>
+    <form id="item-form" class="space-y-4" enctype="multipart/form-data">
+      <div>
+        <label for="title" class="block mb-1">Title</label>
+        <input id="title" name="title" type="text" required class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="description" class="block mb-1">Description</label>
+        <textarea id="description" name="description" rows="3" class="w-full p-2 border rounded" required></textarea>
+      </div>
+      <div>
+        <label for="price" class="block mb-1">Price (£)</label>
+        <input id="price" name="price" type="number" step="0.01" min="0" required class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="condition" class="block mb-1">Condition</label>
+        <select id="condition" name="condition" class="w-full p-2 border rounded">
+          <option value="New">New</option>
+          <option value="Used">Used</option>
+        </select>
+      </div>
+      <div>
+        <label for="category" class="block mb-1">Category</label>
+        <select id="category" name="category" class="w-full p-2 border rounded">
+          <option value="Tools">Tools</option>
+          <option value="Materials">Materials</option>
+          <option value="Services">Services</option>
+          <option value="Vehicles">Vehicles</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="images" class="block mb-1">Images</label>
+        <input id="images" name="images" type="file" accept="image/*" multiple class="w-full" />
+      </div>
+      <div id="error-msg" class="text-red-500 text-center"></div>
+      <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Post Item</button>
+    </form>
   </main>
 
-
-  <!-- Firebase Initialization -->
   <script type="module">
     import { initFirebase } from './firebase-init.js';
-    initFirebase();
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+
+    const { auth, db, storage } = initFirebase();
+    const form = document.getElementById('item-form');
+    const errorEl = document.getElementById('error-msg');
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        errorEl.textContent = '';
+
+        const data = {
+          title: form.title.value.trim(),
+          description: form.description.value.trim(),
+          price: parseFloat(form.price.value),
+          condition: form.condition.value,
+          category: form.category.value,
+          postedBy: user.uid,
+          createdAt: serverTimestamp()
+        };
+
+        if (!data.title || !data.description || isNaN(data.price)) {
+          errorEl.textContent = 'Please fill in all required fields.';
+          return;
+        }
+
+        const files = Array.from(form.images.files);
+        const urls = [];
+        for (const file of files) {
+          const fileRef = ref(storage, `marketplace/${user.uid}/${Date.now()}-${file.name}`);
+          await uploadBytes(fileRef, file);
+          urls.push(await getDownloadURL(fileRef));
+        }
+        if (urls.length) {
+          data.images = urls;
+        }
+
+        await addDoc(collection(db, 'marketplaceItems'), data);
+        form.reset();
+        alert('Item posted!');
+      });
+    });
   </script>
   <div id="footer"></div>
   <script>
@@ -33,6 +112,5 @@
       .then(res => res.text())
       .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
-
 </body>
 </html>

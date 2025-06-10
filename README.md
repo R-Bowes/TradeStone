@@ -25,3 +25,17 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 - Posting and commenting are restricted to authenticated users.
 
 All pages import `firebase-init.js` which centralizes Firebase initialization. Update that file with your credentials and the app will use them across every page.
+
+### Marketplace
+
+- Browse items on `marketplace.html`. Use the sidebar to search by text and filter by category.
+- Logged in users can list items from `post.html`. Upload images and provide details like price and condition.
+- Items are stored in the `marketplaceItems` collection with fields:
+  - `title` – item name
+  - `description` – full text description
+  - `price` – numeric price in GBP
+  - `condition` – `New` or `Used`
+  - `category` – one of the available categories
+  - `images` – array of download URLs (optional)
+  - `postedBy` – UID of the user who created the listing
+  - `createdAt` – Firestore timestamp

@@ -39,7 +39,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
+    <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
       </main>
   </div>
 
@@ -72,10 +72,29 @@
       const trade = document.createElement('p');
       trade.className = 'text-sm text-gray-700';
       trade.textContent = profileData.tradeType || 'N/A';
-      
+
       const locationEl = document.createElement('p');
       locationEl.className = 'text-sm text-gray-700';
       locationEl.textContent = profileData.location || 'N/A';
+
+      const ratingEl = document.createElement('div');
+      ratingEl.className = 'flex items-center';
+      const ratingValue = typeof profileData.avgRating === 'number' ? profileData.avgRating : profileData.rating;
+      if (typeof ratingValue === 'number') {
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement('span');
+          star.textContent = i <= Math.round(ratingValue) ? '★' : '☆';
+          star.className = 'text-yellow-400';
+          ratingEl.appendChild(star);
+        }
+        const text = document.createElement('span');
+        text.textContent = ratingValue.toFixed(1);
+        text.className = 'ml-1 text-sm text-gray-600';
+        ratingEl.appendChild(text);
+      } else {
+        ratingEl.textContent = 'No ratings yet';
+        ratingEl.classList.add('text-sm', 'text-gray-600');
+      }
 
       const radiusEl = document.createElement('p');
       radiusEl.className = 'text-sm text-gray-700';
@@ -98,7 +117,7 @@
       portfolioLink.textContent = 'View Portfolio';
 
       linksContainer.append(profileLink, portfolioLink);
-      card.append(name, trade, locationEl, radiusEl, linksContainer);
+      card.append(name, trade, locationEl, ratingEl, radiusEl, linksContainer);
       return card;
     }
 

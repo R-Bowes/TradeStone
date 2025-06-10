@@ -93,9 +93,15 @@
     });
 
     const form = document.getElementById('signup-form');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const email       = form.email.value;
+      if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        form.email.focus();
+        return;
+      }
       const password    = form.password.value;
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;

@@ -79,9 +79,15 @@
     });
 
     const form = document.getElementById('login-form');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const email    = form.email.value;
+      if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        form.email.focus();
+        return;
+      }
       const password = form.password.value;
       try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);

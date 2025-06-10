@@ -73,9 +73,15 @@
       }
     });
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     document.getElementById('update-email-form').addEventListener('submit', async e => {
       e.preventDefault();
       const newEmail = e.target.newEmail.value;
+      if (!emailRegex.test(newEmail)) {
+        alert('Please enter a valid email address.');
+        e.target.newEmail.focus();
+        return;
+      }
       try {
         await updateEmail(auth.currentUser, newEmail);
         alert('Email updated');

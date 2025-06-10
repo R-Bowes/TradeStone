@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Log In – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
@@ -33,14 +32,12 @@
         Log In
       </button>
     </form>
-    <div id="error-msg" class="text-red-500 mt-2"></div>
-    <p class="mt-4 text-center text-sm">
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div> <p class="mt-4 text-center text-sm">
       Don’t have an account?
       <a href="signup.html" class="text-orange-500 font-medium">Sign up</a>
     </p>
   </main>
 
-  <!-- Home button -->
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
       <svg xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +54,6 @@
     </a>
   </div>
 
-  <!-- Firebase login logic -->
   <script type="module">
     import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
@@ -80,10 +76,10 @@
     });
 
     const form = document.getElementById('login-form');
-    const errorEl = document.getElementById('error-msg');
+    const errorEl = document.getElementById('error-msg'); // Standardized variable name
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      errorEl.textContent = '';
+      errorEl.textContent = ''; // Clear previous error messages
       const email    = form.email.value;
       const password = form.password.value;
       try {
@@ -95,9 +91,11 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
+          // If user exists in auth but not in 'users' collection (shouldn't happen often if signup flow is correct)
           window.location.href = 'index.html';
         }
       } catch(err) {
+        // Display Firebase authentication errors directly on the page
         errorEl.textContent = err.message;
       }
     });

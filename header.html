@@ -9,8 +9,8 @@
 
   <!-- Right side icons -->
   <div class="ml-auto flex items-center space-x-4">
-    <!-- Burger menu button -->
-    <button id="burger-btn" onclick="document.getElementById('burger-menu').classList.toggle('translate-x-full'); document.getElementById('burger-menu').classList.toggle('hidden');" class="focus:outline-none sm:hidden">
+    <!-- Burger menu button visible on all screen sizes -->
+    <button id="burger-btn" onclick="document.getElementById('burger-menu').classList.toggle('translate-x-full'); document.getElementById('burger-menu').classList.toggle('hidden');" class="focus:outline-none">
       <svg class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
@@ -24,8 +24,8 @@
   </div>
 
   <!-- Dropdown menu -->
-  <div id="burger-menu" class="hidden fixed inset-y-0 right-0 w-64 transform translate-x-full transition-transform bg-white border-l border-gray-200 p-4 space-y-2 sm:static sm:translate-x-0 sm:flex sm:items-center sm:space-x-4 sm:space-y-0 sm:p-0 sm:border-0 sm:bg-transparent">
-    <a href="index.html" class="block px-4 py-2 hover:bg-gray-100">Home</a>
+  <div id="burger-menu" class="hidden fixed inset-y-0 right-0 w-64 transform translate-x-full transition-transform bg-white border-l border-gray-200 p-4 space-y-2">
+    <a href="browse-pros.html" class="block px-4 py-2 hover:bg-gray-100">Browse</a>
     <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-100">Marketplace</a>
     <a href="post.html" class="block px-4 py-2 hover:bg-gray-100">Post</a>
     <a href="messages.html" class="block px-4 py-2 hover:bg-gray-100">Messages</a>

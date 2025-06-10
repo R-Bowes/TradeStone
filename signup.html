@@ -41,6 +41,11 @@
         <input id="password" name="password" type="password" required
                class="w-full p-2 border rounded"/>
       </div>
+      <div>
+        <label for="confirmPassword" class="block mb-1">Confirm Password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required
+               class="w-full p-2 border rounded"/>
+      </div>
       <button type="submit"
               class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">
         Sign Up
@@ -92,7 +97,12 @@
       e.preventDefault();
       const email       = form.email.value;
       const password    = form.password.value;
+      const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
+      if (password !== confirm) {
+        alert('Passwords do not match.');
+        return;
+      }
       try {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, 'users', user.uid), {

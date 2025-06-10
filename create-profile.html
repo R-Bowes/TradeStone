@@ -10,7 +10,15 @@
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
+    import { tradeTypes } from './trade-types.js';
     loadHeader();
+    const select = document.getElementById('tradeType');
+    tradeTypes.forEach(t => {
+      const option = document.createElement('option');
+      option.value = t;
+      option.textContent = t;
+      select.appendChild(option);
+    });
   </script>
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
@@ -36,50 +44,7 @@
       </div>
       <div>
         <label for="tradeType" class="block mb-1">Trade Type</label>
-        <select id="tradeType" name="tradeType" class="w-full p-2 border rounded" required>
-          <option value="Carpenter">Carpenter</option>
-          <option value="Bricklayer / Mason">Bricklayer / Mason</option>
-          <option value="Drywall Installer / Finisher">Drywall Installer / Finisher</option>
-          <option value="Tiler">Tiler</option>
-          <option value="Flooring Installer">Flooring Installer</option>
-          <option value="Concrete Finisher">Concrete Finisher</option>
-          <option value="Roofer">Roofer</option>
-          <option value="Insulation Worker">Insulation Worker</option>
-          <option value="Painter and Decorator">Painter and Decorator</option>
-          <option value="Glazier (glass/window installation)">Glazier (glass/window installation)</option>
-          <option value="Plasterer">Plasterer</option>
-          <option value="Electrician">Electrician</option>
-          <option value="Plumber">Plumber</option>
-          <option value="HVAC Technician (Heating, Ventilation, and Air Conditioning)">HVAC Technician (Heating, Ventilation, and Air Conditioning)</option>
-          <option value="Boilermaker">Boilermaker</option>
-          <option value="Mechanical Installer">Mechanical Installer</option>
-          <option value="Automation Technician">Automation Technician</option>
-          <option value="Welder">Welder</option>
-          <option value="Ironworker">Ironworker</option>
-          <option value="Sheet Metal Worker">Sheet Metal Worker</option>
-          <option value="Machinist">Machinist</option>
-          <option value="Heavy Equipment Operator">Heavy Equipment Operator</option>
-          <option value="Crane Operator">Crane Operator</option>
-          <option value="Rigger">Rigger</option>
-          <option value="Scaffolder">Scaffolder</option>
-          <option value="Construction Manager">Construction Manager</option>
-          <option value="Construction Inspector">Construction Inspector</option>
-          <option value="Landscaper">Landscaper</option>
-          <option value="Gardener">Gardener</option>
-          <option value="Tree Surgeon / Arborist">Tree Surgeon / Arborist</option>
-          <option value="Agricultural Technician">Agricultural Technician</option>
-          <option value="Farmer">Farmer</option>
-          <option value="Elevator Mechanic">Elevator Mechanic</option>
-          <option value="Consultant">Consultant</option>
-          <option value="Carpet Installer">Carpet Installer</option>
-          <option value="Security System Installer">Security System Installer</option>
-          <option value="Smart Home Technician">Smart Home Technician</option>
-          <option value="Solar Panel Installer">Solar Panel Installer</option>
-          <option value="Wind Turbine Technician">Wind Turbine Technician</option>
-          <option value="Energy Efficiency Consultant">Energy Efficiency Consultant</option>
-          <option value="Auto Mechanic">Auto Mechanic</option>
-          <option value="Aircraft Mechanic">Aircraft Mechanic</option>
-        </select>
+        <select id="tradeType" name="tradeType" class="w-full p-2 border rounded" required></select>
       </div>
       <div>
         <label for="location" class="block mb-1">Location</label>

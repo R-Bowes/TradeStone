@@ -46,3 +46,8 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. U
   - `images` – array of download URLs (optional)
   - `postedBy` – UID of the user who created the listing
   - `createdAt` – Firestore timestamp
+
+### Messaging
+
+- Visit **Messages** from the burger menu to chat with other users.
+- Conversations appear on the left. Select one to view and send messages in real time.

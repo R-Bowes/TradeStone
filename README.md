@@ -42,6 +42,7 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. U
   - `price` – numeric price in GBP
   - `condition` – `New` or `Used`
   - `category` – one of the available categories
+  - `location` – where the item is located
   - `images` – array of download URLs (optional)
   - `postedBy` – UID of the user who created the listing
   - `createdAt` – Firestore timestamp

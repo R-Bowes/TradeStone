@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Browse Professionals – TradeStone</title>
-  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
-  <!-- Reusable Header -->
   <div id="header"></div>
   <script>
     fetch('header.html')
@@ -18,19 +16,18 @@
       });
   </script>
 
-  <!-- Filters + Profile List -->
-  <div class="max-w-6xl mx-auto mt-4 p-4 flex gap-4">
-    <aside class="w-64 space-y-4 bg-white rounded-lg shadow p-4">
+  <div class="max-w-7xl mx-auto mt-4 p-4 flex flex-col md:flex-row gap-8">
+    <aside class="w-full md:w-64 space-y-4 bg-white rounded-lg shadow p-4 self-start">
       <div>
-        <label for="search" class="block mb-1">Search</label>
-        <input id="search" type="text" class="w-full p-2 border rounded" />
+        <label for="search" class="block mb-1 font-medium">Search by Name</label>
+        <input id="search" type="text" class="w-full p-2 border rounded" placeholder="e.g., John Smith" />
       </div>
       <div>
-        <label for="location-filter" class="block mb-1">Location</label>
-        <input id="location-filter" type="text" class="w-full p-2 border rounded" />
+        <label for="location-filter" class="block mb-1 font-medium">Location</label>
+        <input id="location-filter" type="text" class="w-full p-2 border rounded" placeholder="e.g., London" />
       </div>
       <div>
-        <p class="font-medium mb-1">Trade Type</p>
+        <p class="font-medium mb-2">Trade Type</p>
         <div class="space-y-1">
           <label class="block"><input type="checkbox" value="Plumbing" class="trade-checkbox mr-2">Plumbing</label>
           <label class="block"><input type="checkbox" value="Electrical" class="trade-checkbox mr-2">Electrical</label>
@@ -42,12 +39,10 @@
       </div>
     </aside>
 
-    <main class="flex-1 grid gap-4" id="pro-list">
-      <!-- Profiles will be injected here -->
-    </main>
+    <main class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
+      </main>
   </div>
 
-  <!-- Firebase Script -->
   <script type="module">
     import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
     import { initFirebase } from './firebase-init.js';
@@ -56,62 +51,96 @@
     let allProfiles = [];
     const list = document.getElementById('pro-list');
 
-    function createCard(data, id) {
+    // Creates a single profile card element
+    function createCard(profileData) {
       const card = document.createElement('div');
-      card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
+      card.className = 'bg-white rounded-lg shadow p-4 flex flex-col space-y-2';
+
+      // Add logo if it exists
+      if (profileData.logoUrl) {
+        const logo = document.createElement('img');
+        logo.src = profileData.logoUrl;
+        logo.alt = `${profileData.businessName || 'Profile'} Logo`;
+        logo.className = 'w-full h-32 object-contain mb-2';
+        card.appendChild(logo);
+      }
 
       const name = document.createElement('h2');
       name.className = 'text-lg font-bold';
-      name.textContent = data.businessName || '';
+      name.textContent = profileData.businessName || 'N/A';
 
       const trade = document.createElement('p');
       trade.className = 'text-sm text-gray-700';
-      trade.textContent = data.tradeType || '';
-
+      trade.textContent = profileData.tradeType || 'N/A';
+      
       const locationEl = document.createElement('p');
       locationEl.className = 'text-sm text-gray-700';
-      locationEl.textContent = data.location || '';
+      locationEl.textContent = profileData.location || 'N/A';
+
+      const radiusEl = document.createElement('p');
+      radiusEl.className = 'text-sm text-gray-700';
+      if (profileData.travelRadius && profileData.location) {
+        radiusEl.textContent = `Covers ${profileData.travelRadius} miles from ${profileData.location}`;
+      }
+      
+      // Create a container for links for better layout control
+      const linksContainer = document.createElement('div');
+      linksContainer.className = 'pt-2 mt-auto'; // 'mt-auto' pushes links to the bottom
 
       const profileLink = document.createElement('a');
-      profileLink.href = `professional-profile.html?id=${id}`;
-      profileLink.className = 'text-orange-500 block';
+      profileLink.href = `professional-profile.html?id=${profileData.id}`;
+      profileLink.className = 'text-orange-500 block hover:underline';
       profileLink.textContent = 'View Profile';
 
       const portfolioLink = document.createElement('a');
-      portfolioLink.href = `portfolio.html?id=${id}`;
-      portfolioLink.className = 'text-orange-500 block';
+      portfolioLink.href = `portfolio.html?id=${profileData.id}`;
+      portfolioLink.className = 'text-orange-500 block hover:underline';
       portfolioLink.textContent = 'View Portfolio';
 
-      card.append(name, trade, locationEl, profileLink, portfolioLink);
+      linksContainer.append(profileLink, portfolioLink);
+      card.append(name, trade, locationEl, radiusEl, linksContainer);
       return card;
     }
 
+    // Filters and re-renders the list of professionals
     function filterAndRender() {
-      const term = document.getElementById('search').value.toLowerCase();
-      const loc = document.getElementById('location-filter').value.toLowerCase();
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const locationTerm = document.getElementById('location-filter').value.toLowerCase();
       const selectedTrades = Array.from(document.querySelectorAll('.trade-checkbox:checked')).map(cb => cb.value);
 
       const filtered = allProfiles.filter(p => {
-        const nameMatch = !term || (p.businessName || '').toLowerCase().includes(term);
-        const locMatch = !loc || (p.location || '').toLowerCase().includes(loc);
+        const nameMatch = !searchTerm || (p.businessName || '').toLowerCase().includes(searchTerm);
+        const locationMatch = !locationTerm || (p.location || '').toLowerCase().includes(locationTerm);
         const tradeMatch = selectedTrades.length === 0 || selectedTrades.includes(p.tradeType);
-        return nameMatch && locMatch && tradeMatch;
+        return nameMatch && locationMatch && tradeMatch;
       });
 
-      list.innerHTML = '';
-      filtered.forEach(p => list.appendChild(createCard(p, p.id)));
+      list.innerHTML = ''; // Clear previous results
+      if (filtered.length === 0) {
+        list.innerHTML = '<p>No professionals match your criteria.</p>';
+      } else {
+        filtered.forEach(p => list.appendChild(createCard(p)));
+      }
     }
 
+    // Loads all professionals from Firebase
     async function loadProfessionals() {
-      const querySnapshot = await getDocs(collection(db, 'profiles'));
-      allProfiles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      filterAndRender();
+      try {
+        const querySnapshot = await getDocs(collection(db, 'profiles'));
+        allProfiles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        filterAndRender(); // Initial render
+      } catch (error) {
+        console.error("Error loading professionals:", error);
+        list.innerHTML = '<p class="text-red-500">Could not load professionals. Please try again later.</p>';
+      }
     }
 
+    // Add event listeners to all filter inputs
     document.getElementById('search').addEventListener('input', filterAndRender);
     document.getElementById('location-filter').addEventListener('input', filterAndRender);
     document.querySelectorAll('.trade-checkbox').forEach(cb => cb.addEventListener('change', filterAndRender));
 
+    // Initial load
     loadProfessionals();
   </script>
 </body>

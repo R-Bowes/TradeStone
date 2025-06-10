@@ -31,6 +31,13 @@
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Password</button>
     </form>
 
+    <div id="avatar-section" class="space-y-2">
+      <label for="avatar" class="block mb-1">Avatar or Logo</label>
+      <input id="avatar" name="avatar" type="file" accept="image/*" class="w-full" />
+      <img id="current-avatar" class="w-32 h-32 object-contain my-2 hidden" alt="" />
+      <button type="button" id="remove-avatar-btn" class="py-1 px-2 bg-gray-200 rounded text-sm hidden">Remove Avatar</button>
+    </div>
+
     <form id="notif-form" class="space-y-2">
       <p class="font-medium">Notifications</p>
       <label class="inline-flex items-center space-x-2">
@@ -64,10 +71,11 @@
 
   <script type="module">
     import { onAuthStateChanged, updateEmail, updatePassword, deleteUser } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { doc, getDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { doc, getDoc, updateDoc, deleteDoc, deleteField } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
     import { initFirebase } from './firebase-init.js';
 
-    const { auth, db } = initFirebase();
+    const { auth, db, storage } = initFirebase();
     let userRef;
 
     onAuthStateChanged(auth, async user => {
@@ -77,10 +85,19 @@
         document.getElementById('current-email').textContent = user.email;
         userRef = doc(db, 'users', user.uid);
         const snap = await getDoc(userRef);
-        if (snap.exists() && snap.data().notifications) {
-          const n = snap.data().notifications;
-          document.getElementById('emailUpdates').checked = !!n.emailUpdates;
-          document.getElementById('smsUpdates').checked = !!n.smsUpdates;
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.notifications) {
+            const n = data.notifications;
+            document.getElementById('emailUpdates').checked = !!n.emailUpdates;
+            document.getElementById('smsUpdates').checked = !!n.smsUpdates;
+          }
+          if (data.avatarUrl) {
+            const img = document.getElementById('current-avatar');
+            img.src = data.avatarUrl;
+            img.classList.remove('hidden');
+            document.getElementById('remove-avatar-btn').classList.remove('hidden');
+          }
         }
       }
     });
@@ -114,6 +131,38 @@
       }
     });
 
+    const avatarInput = document.getElementById('avatar');
+    avatarInput.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file || !auth.currentUser) return;
+      const avatarRef = ref(storage, `users/${auth.currentUser.uid}/avatar-${Date.now()}-${file.name}`);
+      await uploadBytes(avatarRef, file);
+      const url = await getDownloadURL(avatarRef);
+      await updateDoc(userRef, { avatarUrl: url }, { merge: true });
+      const img = document.getElementById('current-avatar');
+      img.src = url;
+      img.classList.remove('hidden');
+      document.getElementById('remove-avatar-btn').classList.remove('hidden');
+    });
+
+    document.getElementById('remove-avatar-btn').addEventListener('click', async () => {
+      if (!auth.currentUser) return;
+      const img = document.getElementById('current-avatar');
+      const url = img.src;
+      if (url) {
+        try {
+          await deleteObject(ref(storage, url));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      await updateDoc(userRef, { avatarUrl: deleteField() }, { merge: true });
+      img.src = '';
+      img.classList.add('hidden');
+      document.getElementById('remove-avatar-btn').classList.add('hidden');
+      avatarInput.value = '';
+    });
+
     document.getElementById('notif-form').addEventListener('change', async () => {
       if (!auth.currentUser) return;
       const prefs = {
@@ -141,6 +190,7 @@
       modal.classList.add('hidden');
       if (!auth.currentUser) return;
       try {
+        // Assuming 'profiles' collection also needs to be deleted
         await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);

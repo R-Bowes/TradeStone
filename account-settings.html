@@ -8,10 +8,9 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
   <div id="header"></div>
-  <script>
-    fetch('header.html')
-      .then(res => res.text())
-      .then(html => { document.getElementById('header').innerHTML = html; });
+  <script type="module">
+    import { loadHeader } from './loadHeader.js';
+    loadHeader();
   </script>
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow space-y-6">
     <h1 class="text-2xl font-bold text-center">Account Settings</h1>

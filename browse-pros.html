@@ -8,12 +8,9 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
   <div id="header"></div>
-  <script>
-    fetch('header.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('header').innerHTML = html;
-      });
+  <script type="module">
+    import { loadHeader } from './loadHeader.js';
+    loadHeader();
   </script>
 
   <div class="max-w-7xl mx-auto mt-4 p-4 flex flex-col md:flex-row gap-8">

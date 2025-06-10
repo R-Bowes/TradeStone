@@ -40,5 +40,6 @@ export const tradeTypes = [
   'Wind Turbine Technician',
   'Energy Efficiency Consultant',
   'Auto Mechanic',
-  'Aircraft Mechanic'
+  'Aircraft Mechanic',
+  'Transporter / Delivery / HGV Driver'
 ];

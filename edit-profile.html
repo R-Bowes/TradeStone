@@ -52,6 +52,7 @@
       </div>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">Update Profile</button>
     </form>
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
 
     <div class="mt-6">
       <h3 class="text-lg font-semibold mb-2 text-center">Your Portfolio</h3>
@@ -78,6 +79,7 @@
     const { auth, db, storage } = initFirebase();
     const form = document.getElementById('profile-form');
     const grid = document.getElementById('image-grid');
+    const errorMsg = document.getElementById('error-msg');
 
     // Portfolio Image Deletion Modal Variables and Listeners (from codex branch)
     const imgModal = document.getElementById('img-delete-modal');
@@ -99,7 +101,7 @@
         await loadImages(); // Reload the portfolio images to update the UI
       } catch (error) {
         console.error("Error deleting portfolio image:", error);
-        alert("Failed to delete image: " + error.message); // Provide user feedback
+        errorMsg.textContent = "Failed to delete image: " + error.message; // Provide user feedback
       }
     });
 
@@ -192,7 +194,7 @@
           window.location.href = `professional-profile.html?id=${user.uid}`; // Redirect on success
         } catch (error) {
           console.error("Error updating profile:", error);
-          alert("Failed to update profile: " + error.message); // Provide user feedback
+          errorMsg.textContent = "Failed to update profile: " + error.message; // Provide user feedback
         }
       });
     });

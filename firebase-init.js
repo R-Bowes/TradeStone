@@ -3,17 +3,26 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
 
-// Replace these credentials with your Firebase project configuration
-const firebaseConfig = {
-  apiKey: 'AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo',
-  authDomain: 'tradestone-efb30.firebaseapp.com',
-  databaseURL: 'https://tradestone-efb30-default-rtdb.firebaseio.com',
-  projectId: 'tradestone-efb30',
-  storageBucket: 'tradestone-efb30.appspot.com',
-  messagingSenderId: '761717818779',
-  appId: '1:761717818779:web:05287865a076dbfed68d3e',
-  measurementId: 'G-TM9DK5H25J'
-};
+/**
+ * Build the Firebase configuration using environment variables when available
+ * or values exposed on `window.firebaseConfig` via a separate config file.
+ */
+function buildConfig() {
+  const env = (typeof process !== 'undefined' && process.env) ? process.env : {};
+  const win = (typeof window !== 'undefined' ? window : {});
+  const cfg = win.firebaseConfig || {};
+
+  return {
+    apiKey: env.FIREBASE_API_KEY || cfg.apiKey || '<API_KEY>',
+    authDomain: env.FIREBASE_AUTH_DOMAIN || cfg.authDomain || '<AUTH_DOMAIN>',
+    databaseURL: env.FIREBASE_DATABASE_URL || cfg.databaseURL || '<DATABASE_URL>',
+    projectId: env.FIREBASE_PROJECT_ID || cfg.projectId || '<PROJECT_ID>',
+    storageBucket: env.FIREBASE_STORAGE_BUCKET || cfg.storageBucket || '<STORAGE_BUCKET>',
+    messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID || cfg.messagingSenderId || '<MESSAGING_SENDER_ID>',
+    appId: env.FIREBASE_APP_ID || cfg.appId || '<APP_ID>',
+    measurementId: env.FIREBASE_MEASUREMENT_ID || cfg.measurementId || '<MEASUREMENT_ID>'
+  };
+}
 
 let services;
 
@@ -23,7 +32,7 @@ let services;
  */
 export function initFirebase() {
   if (!services) {
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(buildConfig());
     services = {
       app,
       auth: getAuth(app),

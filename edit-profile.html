@@ -23,6 +23,12 @@
         <input id="businessName" name="businessName" type="text" required class="w-full p-2 border rounded" />
       </div>
       <div>
+        <label for="logo" class="block mb-1">Logo</label>
+        <input id="logo" name="logo" type="file" accept="image/*" class="w-full" />
+        <img id="current-logo" class="w-32 h-32 object-contain my-2 hidden" alt="">
+        <button id="remove-logo" type="button" class="text-red-500 text-sm hidden">Remove Logo</button>
+      </div>
+      <div>
         <label for="description" class="block mb-1">Company Info</label>
         <textarea id="description" name="description" rows="3" class="w-full p-2 border rounded"></textarea>
       </div>
@@ -64,7 +70,18 @@
     const { auth, db, storage } = initFirebase();
     const form = document.getElementById('profile-form');
     const grid = document.getElementById('image-grid');
+    const currentLogo = document.getElementById('current-logo');
+    const removeLogoBtn = document.getElementById('remove-logo');
     let currentUser;
+    let existingLogoUrl = '';
+    let removeExistingLogo = false;
+
+    removeLogoBtn.addEventListener('click', () => {
+      removeExistingLogo = true;
+      currentLogo.classList.add('hidden');
+      removeLogoBtn.classList.add('hidden');
+      form.logo.value = '';
+    });
 
     onAuthStateChanged(auth, async user => {
       if (!user) {
@@ -83,6 +100,13 @@
         form.specializations.value = data.specializations || '';
         form.location.value = data.location || '';
         form.travelRadius.value = data.travelRadius || '';
+
+        if (data.logoUrl) {
+          existingLogoUrl = data.logoUrl;
+          currentLogo.src = data.logoUrl;
+          currentLogo.classList.remove('hidden');
+          removeLogoBtn.classList.remove('hidden');
+        }
       }
 
       await loadImages();
@@ -98,6 +122,19 @@
           location: form.location.value,
           travelRadius: form.travelRadius.value
         };
+
+        const logoFile = form.logo.files[0];
+        if (logoFile) {
+          const logoRef = ref(storage, `profiles/${user.uid}/logo-${Date.now()}-${logoFile.name}`);
+          await uploadBytes(logoRef, logoFile);
+          updateData.logoUrl = await getDownloadURL(logoRef);
+          if (existingLogoUrl) {
+            try { await deleteObject(ref(storage, existingLogoUrl)); } catch {}
+          }
+        } else if (removeExistingLogo && existingLogoUrl) {
+          try { await deleteObject(ref(storage, existingLogoUrl)); } catch {}
+          updateData.logoUrl = null;
+        }
 
         const files = Array.from(form.portfolio.files);
         if (files.length) {

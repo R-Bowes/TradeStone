@@ -70,6 +70,7 @@
           <label class="block"><input type="checkbox" value="Aircraft Mechanic" class="trade-checkbox mr-2">Aircraft Mechanic</label>
         </div>
       </div>
+      <button id="apply-filters" class="w-full py-2 bg-orange-500 text-white rounded">Apply Filters</button>
     </aside>
 
     <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
@@ -187,10 +188,11 @@
       }
     }
 
-    // Add event listeners to all filter inputs
+    // Add event listeners
     document.getElementById('search').addEventListener('input', filterAndRender);
     document.getElementById('location-filter').addEventListener('input', filterAndRender);
     document.querySelectorAll('.trade-checkbox').forEach(cb => cb.addEventListener('change', filterAndRender));
+    document.getElementById('apply-filters').addEventListener('click', filterAndRender);
 
     // Initial load
     loadProfessionals();

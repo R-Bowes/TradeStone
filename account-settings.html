@@ -17,14 +17,15 @@
     <h1 class="text-2xl font-bold text-center">Account Settings</h1>
     <p class="text-center">Logged in as: <span id="current-email" class="font-medium"></span></p>
 
+    <div id="main-success-msg" class="text-green-500 text-center"></div>
+    <div id="main-error-msg" class="text-red-500 text-center"></div>
+
     <form id="update-email-form" class="space-y-2">
       <label class="block">New Email
         <input id="newEmail" name="newEmail" type="email" class="w-full p-2 border rounded" required />
       </label>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Email</button>
     </form>
-    <div id="success-msg" class="text-green-500"></div>
-    <div id="error-msg" class="text-red-500"></div>
 
     <form id="update-password-form" class="space-y-2">
       <label class="block">New Password
@@ -32,8 +33,13 @@
       </label>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Password</button>
     </form>
-    <div id="success-msg" class="text-green-500"></div>
-    <div id="error-msg" class="text-red-500"></div>
+
+    <div id="avatar-section" class="space-y-2">
+      <label for="avatar" class="block mb-1">Avatar or Logo</label>
+      <input id="avatar" name="avatar" type="file" accept="image/*" class="w-full" />
+      <img id="current-avatar" class="w-32 h-32 object-contain my-2 hidden" alt="" />
+      <button type="button" id="remove-avatar-btn" class="py-1 px-2 bg-gray-200 rounded text-sm hidden">Remove Avatar</button>
+    </div>
 
     <form id="notif-form" class="space-y-2">
       <p class="font-medium">Notifications</p>
@@ -46,31 +52,31 @@
         <span>SMS Updates</span>
       </label>
     </form>
-    <div id="error-msg" class="text-red-500"></div>
 
     <button id="delete-account-btn" class="w-full py-2 bg-red-500 text-white rounded">Delete Account</button>
-
-    <div id="delete-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-      <div class="bg-white p-4 rounded">
-        <p class="mb-4">Delete your account and profile? This cannot be undone.</p>
-        <div class="flex justify-end gap-2">
-          <button id="cancel-delete" class="px-3 py-1 bg-gray-300 rounded">Cancel</button>
-          <button id="confirm-delete" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
-        </div>
-      </div>
-    </div>
   </main>
 
   <div class="text-center mt-6">
     <a href="professional-dashboard.html" class="text-orange-500 font-medium">Back to Dashboard</a>
   </div>
 
+  <div id="delete-confirm-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+    <div class="bg-white p-4 rounded text-center space-y-4">
+      <p>Delete your account and profile? This cannot be undone.</p>
+      <div class="flex justify-end space-x-2">
+        <button id="cancel-delete-btn" class="px-3 py-1 border rounded">Cancel</button>
+        <button id="confirm-delete-btn" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { onAuthStateChanged, updateEmail, updatePassword, deleteUser } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { doc, getDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { doc, getDoc, updateDoc, deleteDoc, deleteField } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
     import { initFirebase } from './firebase-init.js';
 
-    const { auth, db } = initFirebase();
+    const { auth, db, storage } = initFirebase();
     let userRef;
 
     onAuthStateChanged(auth, async user => {
@@ -80,73 +86,149 @@
         document.getElementById('current-email').textContent = user.email;
         userRef = doc(db, 'users', user.uid);
         const snap = await getDoc(userRef);
-        if (snap.exists() && snap.data().notifications) {
-          const n = snap.data().notifications;
-          document.getElementById('emailUpdates').checked = !!n.emailUpdates;
-          document.getElementById('smsUpdates').checked = !!n.smsUpdates;
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.notifications) {
+            const n = data.notifications;
+            document.getElementById('emailUpdates').checked = !!n.emailUpdates;
+            document.getElementById('smsUpdates').checked = !!n.smsUpdates;
+          }
+          if (data.avatarUrl) {
+            const img = document.getElementById('current-avatar');
+            img.src = data.avatarUrl;
+            img.classList.remove('hidden');
+            document.getElementById('remove-avatar-btn').classList.remove('hidden');
+          }
         }
       }
     });
 
-    const errorDiv = document.getElementById('error-msg');
-    const successDiv = document.getElementById('success-msg');
+    // Use a single set of error and success message elements for the main section
+    const mainErrorMsg = document.getElementById('main-error-msg');
+    const mainSuccessMsg = document.getElementById('main-success-msg');
+
+    function clearMessages() {
+      mainErrorMsg.textContent = '';
+      mainSuccessMsg.textContent = '';
+    }
 
     document.getElementById('update-email-form').addEventListener('submit', async e => {
       e.preventDefault();
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
+      clearMessages();
       const newEmail = e.target.newEmail.value;
       try {
         await updateEmail(auth.currentUser, newEmail);
-        successDiv.textContent = 'Email updated';
+        mainSuccessMsg.textContent = 'Email updated successfully!';
       } catch (err) {
-        document.getElementById('error-msg').textContent = err.message;
+        mainErrorMsg.textContent = err.message;
       }
     });
 
     document.getElementById('update-password-form').addEventListener('submit', async e => {
       e.preventDefault();
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
+      clearMessages();
       const newPassword = e.target.newPassword.value;
       try {
         await updatePassword(auth.currentUser, newPassword);
-        successDiv.textContent = 'Password updated';
+        mainSuccessMsg.textContent = 'Password updated successfully!';
       } catch (err) {
-        document.getElementById('error-msg').textContent = err.message;
+        mainErrorMsg.textContent = err.message;
+      }
+    });
+
+    const avatarInput = document.getElementById('avatar');
+    avatarInput.addEventListener('change', async e => {
+      clearMessages();
+      const file = e.target.files[0];
+      if (!file || !auth.currentUser) return;
+      const avatarRef = ref(storage, `users/${auth.currentUser.uid}/avatar-${Date.now()}-${file.name}`);
+      try {
+        await uploadBytes(avatarRef, file);
+        const url = await getDownloadURL(avatarRef);
+        await updateDoc(userRef, { avatarUrl: url }, { merge: true });
+        const img = document.getElementById('current-avatar');
+        img.src = url;
+        img.classList.remove('hidden');
+        document.getElementById('remove-avatar-btn').classList.remove('hidden');
+        mainSuccessMsg.textContent = 'Avatar uploaded successfully!';
+      } catch (err) {
+        mainErrorMsg.textContent = 'Failed to upload avatar: ' + err.message;
+      }
+    });
+
+    document.getElementById('remove-avatar-btn').addEventListener('click', async () => {
+      clearMessages();
+      if (!auth.currentUser) return;
+      const img = document.getElementById('current-avatar');
+      const url = img.src;
+      if (url) {
+        try {
+          await deleteObject(ref(storage, url));
+        } catch (err) {
+          console.error("Error deleting old avatar from storage:", err);
+          // Don't show this error to the user unless it prevents the database update
+        }
+      }
+      try {
+        await updateDoc(userRef, { avatarUrl: deleteField() }, { merge: true });
+        img.src = '';
+        img.classList.add('hidden');
+        document.getElementById('remove-avatar-btn').classList.add('hidden');
+        avatarInput.value = ''; // Clear the file input
+        mainSuccessMsg.textContent = 'Avatar removed successfully!';
+      } catch (err) {
+        mainErrorMsg.textContent = 'Failed to remove avatar: ' + err.message;
       }
     });
 
     document.getElementById('notif-form').addEventListener('change', async () => {
+      clearMessages();
       if (!auth.currentUser) return;
       const prefs = {
         emailUpdates: document.getElementById('emailUpdates').checked,
         smsUpdates: document.getElementById('smsUpdates').checked
       };
-      await updateDoc(doc(db, 'users', auth.currentUser.uid), { notifications: prefs }, { merge: true });
-    });
-
-    const modal = document.getElementById('delete-modal');
-    document.getElementById('delete-account-btn').addEventListener('click', () => {
-      modal.classList.remove('hidden');
-    });
-
-    document.getElementById('cancel-delete').addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-
-    document.getElementById('confirm-delete').addEventListener('click', async () => {
-      if (!auth.currentUser) return;
-      modal.classList.add('hidden');
       try {
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), { notifications: prefs }, { merge: true });
+        mainSuccessMsg.textContent = 'Notification preferences updated!';
+      } catch (err) {
+        mainErrorMsg.textContent = 'Failed to update notification preferences: ' + err.message;
+      }
+    });
+
+    const deleteModal = document.getElementById('delete-confirm-modal');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+    document.getElementById('delete-account-btn').addEventListener('click', () => {
+      clearMessages(); // Clear any existing messages before showing modal
+      deleteModal.classList.remove('hidden');
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+    });
+
+    confirmDeleteBtn.addEventListener('click', async () => {
+      deleteModal.classList.add('hidden');
+      clearMessages(); // Clear messages again before performing delete operation
+      if (!auth.currentUser) return;
+      try {
+        // Assuming 'profiles' collection also needs to be deleted
         await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);
-        window.location.href = 'signup.html';
+        window.location.href = 'signup.html'; // Redirect after successful deletion
       } catch (err) {
-        document.getElementById('error-msg').textContent = err.message;
+        mainErrorMsg.textContent = err.message;
       }
     });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>

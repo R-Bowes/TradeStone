@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
@@ -51,10 +50,8 @@
         Sign Up
       </button>
     </form>
-    <div id="error-msg" class="text-red-500"></div>
-  </main>
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div> </main>
 
-  <!-- Home button -->
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
       <svg xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +68,6 @@
     </a>
   </div>
 
-  <!-- Firebase signup logic -->
   <script type="module">
     import { onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
@@ -88,29 +84,32 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
+          // Fallback if user exists in auth but not in Firestore 'users' collection
           window.location.href = 'index.html';
         }
       }
     });
 
     const form = document.getElementById('signup-form');
-    const errorDiv = document.getElementById('error-msg');
+    const errorEl = document.getElementById('error-msg'); // Standardized variable name
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      errorDiv.textContent = '';
+      errorEl.textContent = ''; // Clear any previous error messages
       const email       = form.email.value;
       const password    = form.password.value;
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
+
       if (password !== confirm) {
-        errorDiv.textContent = 'Passwords do not match.';
+        errorEl.textContent = 'Passwords do not match.';
         return;
       }
+
       try {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, 'users', user.uid), {
           accountType,
-          notifications: { emailUpdates: true, smsUpdates: true }
+          notifications: { emailUpdates: true, smsUpdates: true } // Default notifications
         });
         if (accountType === 'professional') {
           window.location.href = 'create-profile.html';
@@ -118,9 +117,17 @@
           window.location.href = 'personal-dashboard.html';
         }
       } catch(err) {
-        errorDiv.textContent = err.message;
+        // Display Firebase authentication errors directly on the page
+        errorEl.textContent = err.message;
       }
     });
+  </script>
+
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 
 </body>

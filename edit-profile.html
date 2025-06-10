@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Profile – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('header').innerHTML = html; });
+  </script>
+
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Edit Profile</h2>
+    <form id="profile-form" class="space-y-4" enctype="multipart/form-data">
+      <div>
+        <label for="businessName" class="block mb-1">Business Name</label>
+        <input id="businessName" name="businessName" type="text" required class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="logo" class="block mb-1">Logo</label>
+        <input id="logo" name="logo" type="file" accept="image/*" class="w-full" />
+        <img id="current-logo" class="w-32 h-32 object-contain my-2 hidden" alt="">
+        <button id="remove-logo" type="button" class="text-red-500 text-sm hidden">Remove Logo</button>
+      </div>
+      <div>
+        <label for="description" class="block mb-1">Company Info</label>
+        <textarea id="description" name="description" rows="3" class="w-full p-2 border rounded"></textarea>
+      </div>
+      <div>
+        <label for="teamMembers" class="block mb-1">Team Members</label>
+        <textarea id="teamMembers" name="teamMembers" rows="2" class="w-full p-2 border rounded"></textarea>
+      </div>
+      <div>
+        <label for="specializations" class="block mb-1">Trade Specializations</label>
+        <input id="specializations" name="specializations" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="location" class="block mb-1">Location</label>
+        <input id="location" name="location" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="travelRadius" class="block mb-1">Travel Radius (miles)</label>
+        <input id="travelRadius" name="travelRadius" type="number" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="portfolio" class="block mb-1">Upload Portfolio Images</label>
+        <input id="portfolio" name="portfolio" type="file" accept="image/*" multiple class="w-full" />
+      </div>
+      <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">Update Profile</button>
+    </form>
+
+    <div class="mt-6">
+      <h3 class="text-lg font-semibold mb-2 text-center">Your Portfolio</h3>
+      <div id="image-grid" class="grid grid-cols-1 gap-4"></div>
+    </div>
+
+    <div id="img-delete-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div class="bg-white p-4 rounded">
+        <p class="mb-4">Delete this image?</p>
+        <div class="flex justify-end gap-2">
+          <button id="img-cancel" type="button" class="px-3 py-1 bg-gray-300 rounded">Cancel</button>
+          <button id="img-confirm" type="button" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { auth, db, storage } = initFirebase();
+    const form = document.getElementById('profile-form');
+    const grid = document.getElementById('image-grid');
+
+    // Portfolio Image Deletion Modal Variables and Listeners (from codex branch)
+    const imgModal = document.getElementById('img-delete-modal');
+    const imgCancel = document.getElementById('img-cancel');
+    const imgConfirm = document.getElementById('img-confirm');
+    let itemToDelete = null; // Variable to hold the storage reference of the item to delete
+
+    imgCancel.addEventListener('click', () => {
+      itemToDelete = null;
+      imgModal.classList.add('hidden');
+    });
+
+    imgConfirm.addEventListener('click', async () => {
+      if (!itemToDelete) return; // Ensure an item is selected for deletion
+      try {
+        await deleteObject(itemToDelete); // Delete the item from Firebase Storage
+        itemToDelete = null; // Reset the item to delete
+        imgModal.classList.add('hidden'); // Hide the modal
+        await loadImages(); // Reload the portfolio images to update the UI
+      } catch (error) {
+        console.error("Error deleting portfolio image:", error);
+        alert("Failed to delete image: " + error.message); // Provide user feedback
+      }
+    });
+
+    // Logo Management Variables and Listeners (from main branch)
+    const currentLogo = document.getElementById('current-logo');
+    const removeLogoBtn = document.getElementById('remove-logo');
+    let existingLogoUrl = '';
+    let removeExistingLogo = false; // Flag to track if the existing logo should be removed
+
+    removeLogoBtn.addEventListener('click', () => {
+      removeExistingLogo = true; // Set flag to true
+      currentLogo.classList.add('hidden'); // Hide the logo image
+      removeLogoBtn.classList.add('hidden'); // Hide the remove button
+      form.logo.value = ''; // Clear the file input for the logo
+    });
+
+    let currentUser; // Moved outside for broader scope
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = user;
+
+      const docRef = doc(db, 'profiles', user.uid);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        form.businessName.value = data.businessName || '';
+        form.description.value = data.description || '';
+        form.teamMembers.value = data.teamMembers || '';
+        form.specializations.value = data.specializations || '';
+        form.location.value = data.location || '';
+        form.travelRadius.value = data.travelRadius || '';
+
+        if (data.logoUrl) {
+          existingLogoUrl = data.logoUrl;
+          currentLogo.src = data.logoUrl;
+          currentLogo.classList.remove('hidden');
+          removeLogoBtn.classList.remove('hidden');
+        }
+      }
+
+      await loadImages(); // Load portfolio images after user is authenticated and data is loaded
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const updateData = {
+          businessName: form.businessName.value,
+          description: form.description.value,
+          teamMembers: form.teamMembers.value,
+          specializations: form.specializations.value,
+          location: form.location.value,
+          travelRadius: form.travelRadius.value
+        };
+
+        const logoFile = form.logo.files[0];
+        if (logoFile) {
+          const logoRef = ref(storage, `profiles/${user.uid}/logo-${Date.now()}-${logoFile.name}`);
+          await uploadBytes(logoRef, logoFile);
+          updateData.logoUrl = await getDownloadURL(logoRef);
+          if (existingLogoUrl) {
+            // Delete the old logo if a new one is uploaded
+            try { await deleteObject(ref(storage, existingLogoUrl)); } catch (err) { console.warn("Could not delete old logo:", err); }
+          }
+        } else if (removeExistingLogo && existingLogoUrl) {
+          // If the remove logo button was clicked and there was an existing logo
+          try { await deleteObject(ref(storage, existingLogoUrl)); } catch (err) { console.warn("Could not delete old logo:", err); }
+          updateData.logoUrl = null; // Set logoUrl to null in Firestore
+        }
+
+        const files = Array.from(form.portfolio.files);
+        if (files.length) {
+          const urls = [];
+          for (const file of files) {
+            const fileRef = ref(storage, `profiles/${user.uid}/portfolio/${Date.now()}-${file.name}`);
+            await uploadBytes(fileRef, file);
+            urls.push(await getDownloadURL(fileRef));
+          }
+          // Note: This approach adds new portfolio images. If you want to replace,
+          // you'd need to clear existing ones or manage an array in Firestore.
+          // For now, it appends or creates the field.
+          updateData.portfolioUrls = urls;
+        }
+
+        try {
+          await setDoc(docRef, updateData, { merge: true }); // Merge ensures existing fields are kept
+          window.location.href = `professional-profile.html?id=${user.uid}`; // Redirect on success
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          alert("Failed to update profile: " + error.message); // Provide user feedback
+        }
+      });
+    });
+
+    async function loadImages() {
+      grid.innerHTML = ''; // Clear existing images
+      const listRef = ref(storage, `profiles/${auth.currentUser.uid}/portfolio`);
+      try {
+        const res = await listAll(listRef);
+        if (res.items.length === 0) {
+          grid.innerHTML = '<p class="text-gray-700">No portfolio images found.</p>';
+        }
+        for (const item of res.items) {
+          const url = await getDownloadURL(item);
+          const container = document.createElement('div');
+          container.className = 'relative';
+          const img = document.createElement('img');
+          img.src = url;
+          img.className = 'w-full rounded-lg';
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.className = 'absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded';
+          del.addEventListener('click', () => {
+            itemToDelete = item; // Store the reference to the item to be deleted
+            imgModal.classList.remove('hidden'); // Show the confirmation modal
+          });
+          container.appendChild(img);
+          container.appendChild(del);
+          grid.appendChild(container);
+        }
+      } catch (err) {
+        grid.innerHTML = `<p class="text-red-500">Error loading portfolio images: ${err.message}</p>`;
+        console.error("Error loading portfolio images:", err);
+      }
+    }
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
+</body>
+</html>

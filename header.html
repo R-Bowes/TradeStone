@@ -1,0 +1,34 @@
+<header class="sticky top-0 z-50 relative flex items-center justify-between p-4 bg-white shadow">
+  <!-- Centered logo and name -->
+  <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+    <a href="index.html">
+      <img src="TradeStone%20Logo.png" alt="TradeStone logo" class="h-8 w-auto">
+    </a>
+    <h1 class="text-xl font-bold">TradeStone</h1>
+  </div>
+
+  <!-- Right side icons -->
+  <div class="ml-auto flex items-center space-x-4">
+    <!-- Burger menu button -->
+    <button id="burger-btn" onclick="document.getElementById('burger-menu').classList.toggle('translate-x-full'); document.getElementById('burger-menu').classList.toggle('hidden');" class="focus:outline-none sm:hidden">
+      <svg class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <!-- Profile icon -->
+    <a href="personal-dashboard.html">
+      <svg class="h-6 w-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Dropdown menu -->
+  <div id="burger-menu" class="hidden fixed inset-y-0 right-0 w-64 transform translate-x-full transition-transform bg-white border-l border-gray-200 p-4 space-y-2 sm:static sm:translate-x-0 sm:flex sm:items-center sm:space-x-4 sm:space-y-0 sm:p-0 sm:border-0 sm:bg-transparent">
+    <a href="index.html" class="block px-4 py-2 hover:bg-gray-100">Home</a>
+    <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-100">Marketplace</a>
+    <a href="post.html" class="block px-4 py-2 hover:bg-gray-100">Post</a>
+    <a href="messages.html" class="block px-4 py-2 hover:bg-gray-100">Messages</a>
+    <a href="login.html" class="block px-4 py-2 hover:bg-gray-100">Login</a>
+  </div>
+</header>

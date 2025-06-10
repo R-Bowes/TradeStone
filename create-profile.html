@@ -4,10 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Profile – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('header').innerHTML = html; });
+  </script>
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h1 class="text-2xl font-bold mb-6 text-center">Professional Profile</h1>
@@ -57,7 +62,6 @@
     </form>
   </main>
 
-  <!-- Home button -->
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -67,43 +71,45 @@
     </a>
   </div>
 
-  <!-- Firebase profile creation logic -->
   <script type="module">
-    import { firebaseConfig } from './firebaseConfig.js';
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
-    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    // Import necessary Firebase modules
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    // Import your centralized Firebase initialization
+    import { initFirebase } from './firebase-init.js';
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    // Initialize Firebase services using your centralized function
+    const { auth, db, storage } = initFirebase();
 
+    // Listen for authentication state changes
     onAuthStateChanged(auth, user => {
+      // If no user is logged in, redirect to the login page
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
 
       const form = document.getElementById('profile-form');
+      // Add a submit event listener to the form
       form.addEventListener('submit', async e => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
 
+        // Collect form data
         const data = {
           businessName: form.businessName.value,
           description: form.description.value,
           tradeType: form.tradeType.value,
           location: form.location.value,
           travelRadius: form.travelRadius.value,
-          social: {
+          social: { // Collect social media links
             facebook: form.facebook.value,
             instagram: form.instagram.value,
             linkedin: form.linkedin.value
           }
         };
 
-        // Upload logo
+        // Handle logo upload
         const logoFile = form.logo.files[0];
         if (logoFile) {
           const logoRef = ref(storage, `profiles/${user.uid}/logo-${Date.now()}-${logoFile.name}`);
@@ -111,7 +117,7 @@
           data.logoUrl = await getDownloadURL(logoRef);
         }
 
-        // Upload portfolio images
+        // Handle portfolio images upload
         const portfolioFiles = Array.from(form.portfolio.files);
         const portfolioUrls = [];
         for (const file of portfolioFiles) {
@@ -123,10 +129,18 @@
           data.portfolioUrls = portfolioUrls;
         }
 
+        // Save profile data to Firestore
         await setDoc(doc(db, 'profiles', user.uid), data);
-        window.location.href = 'professional-dashboard.html';
+        // Redirect to the professional profile page after successful save
+        window.location.href = `professional-profile.html?id=${user.uid}`;
       });
     });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>

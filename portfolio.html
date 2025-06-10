@@ -7,20 +7,77 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
-  <header class="flex items-center justify-between p-4 bg-white shadow">
-    <div class="flex items-center space-x-2">
-      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
-        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
-      </svg>
-      <h1 class="text-xl font-bold">TradeStone</h1>
-    </div>
-    <a href="index.html" class="text-orange-500 font-medium">Home</a>
-  </header>
 
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
-    <h2 class="text-xl font-semibold mb-2">Portfolio</h2>
-    <p class="text-gray-700">Portfolio content coming soon.</p>
+  <!-- Header -->
+  <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
+  </script>
+
+  <!-- Portfolio Gallery -->
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 class="text-xl font-semibold mb-4 text-center">Portfolio</h2>
+    <div id="portfolio-grid" class="grid grid-cols-2 gap-4"></div>
   </main>
+
+  <!-- Portfolio Script -->
+  <script type="module">
+    import { ref, listAll, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { storage } = initFirebase();
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const grid = document.getElementById('portfolio-grid');
+
+    async function loadPortfolio() {
+      if (!id) {
+        grid.innerHTML = '<p class="text-red-500">No professional specified.</p>';
+        return;
+      }
+
+      try {
+        const listRef = ref(storage, `profiles/${id}/portfolio`);
+        const res = await listAll(listRef);
+        grid.innerHTML = '';
+
+        if (res.items.length === 0) {
+          grid.innerHTML = '<p class="text-gray-700">No portfolio images found.</p>';
+          return;
+        }
+
+        for (const item of res.items) {
+          const url = await getDownloadURL(item);
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Portfolio image';
+          img.className = 'w-full h-32 object-cover rounded';
+          grid.appendChild(img);
+        }
+      } catch (err) {
+        grid.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    loadPortfolio();
+
+    // Listen for cross-tab updates
+    window.addEventListener('storage', e => {
+      if (e.key === 'portfolioUpdated') {
+        loadPortfolio();
+      }
+    });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
+
 </body>
 </html>

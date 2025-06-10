@@ -4,10 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('header').innerHTML = html; });
+  </script>
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h1 class="text-2xl font-bold mb-6 text-center">Create Account</h1>
@@ -35,14 +40,19 @@
         <input id="password" name="password" type="password" required
                class="w-full p-2 border rounded"/>
       </div>
+      <div>
+        <label for="confirmPassword" class="block mb-1">Confirm Password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required
+               class="w-full p-2 border rounded"/>
+      </div>
       <button type="submit"
               class="w-full py-2 bg-orange-500 text-white rounded-lg font-medium">
         Sign Up
       </button>
     </form>
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
   </main>
 
-  <!-- Home button -->
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
       <svg xmlns="http://www.w3.org/2000/svg"
@@ -59,35 +69,78 @@
     </a>
   </div>
 
-  <!-- Firebase signup logic -->
   <script type="module">
-    import { firebaseConfig } from './firebaseConfig.js';
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    // Import necessary Firebase modules
+    import { onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    // Import your centralized Firebase initialization
+    import { initFirebase } from './firebase-init.js';
 
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+    // Initialize Firebase services using your centralized function
+    const { auth, db } = initFirebase();
+
+    // Check if a user is already logged in and redirect them
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) {
+          const { accountType } = snap.data();
+          window.location.href = accountType === 'professional'
+            ? 'professional-dashboard.html'
+            : 'personal-dashboard.html';
+        } else {
+          // Fallback if user exists in auth but not in Firestore 'users' collection
+          window.location.href = 'index.html';
+        }
+      }
+    });
 
     const form = document.getElementById('signup-form');
+    const errorEl = document.getElementById('error-msg'); // Standardized variable name
+
+    // Handle form submission for signup
     form.addEventListener('submit', async e => {
       e.preventDefault();
+      errorEl.textContent = ''; // Clear any previous error messages
+
       const email       = form.email.value;
       const password    = form.password.value;
+      const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
+
+      // Validate passwords match
+      if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match.';
+        return;
+      }
+
       try {
+        // Create user with email and password
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, 'users', user.uid), { accountType });
+        // Save user account type and default notification settings to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          accountType,
+          notifications: { emailUpdates: true, smsUpdates: true } // Default notifications
+        });
+
+        // Redirect based on account type
         if (accountType === 'professional') {
           window.location.href = 'create-profile.html';
         } else {
-          window.location.href = 'login.html';
+          window.location.href = 'personal-dashboard.html';
         }
       } catch(err) {
-        alert(err.message);
+        // Display Firebase authentication errors directly on the page
+        errorEl.textContent = err.message;
       }
     });
+  </script>
+
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 
 </body>

@@ -7,20 +7,101 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
-  <header class="flex items-center justify-between p-4 bg-white shadow">
-    <div class="flex items-center space-x-2">
-      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
-        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
-      </svg>
-      <h1 class="text-xl font-bold">TradeStone</h1>
-    </div>
-    <a href="index.html" class="text-orange-500 font-medium">Home</a>
-  </header>
 
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
-    <h2 class="text-xl font-semibold mb-2">Professional Profile</h2>
-    <p class="text-gray-700">Profile details coming soon.</p>
+  <!-- Reusable Header -->
+  <div id="header"></div>
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
+  </script>
+
+  <!-- Profile Content -->
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center space-y-4">
+    <img id="logo" alt="" class="w-32 h-32 mx-auto object-contain hidden" />
+    <h2 id="businessName" class="text-2xl font-bold"></h2>
+    <p id="tradeType" class="text-sm text-gray-700"></p>
+    <p id="location" class="text-sm text-gray-700"></p>
+    <p id="description" class="text-gray-800"></p>
+    <div id="social-links" class="flex justify-center flex-wrap gap-4"></div>
+    <a id="portfolio-link" href="#" class="text-orange-500 font-medium block">View Portfolio</a>
+    <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Profile</a>
   </main>
+
+  <!-- Firebase Logic -->
+  <script type="module">
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { db, auth } = initFirebase();
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const main = document.querySelector('main');
+
+    async function loadProfile() {
+      if (!id) {
+        main.innerHTML = '<p class="text-red-500">No profile specified.</p>';
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, 'profiles', id));
+        if (!snap.exists()) {
+          main.innerHTML = '<p class="text-red-500">Profile not found.</p>';
+          return;
+        }
+
+        const data = snap.data();
+
+        if (data.logoUrl) {
+          const logo = document.getElementById('logo');
+          logo.src = data.logoUrl;
+          logo.alt = data.businessName || 'Logo';
+          logo.classList.remove('hidden');
+        }
+
+        document.getElementById('businessName').textContent = data.businessName || '';
+        document.getElementById('tradeType').textContent = data.tradeType || '';
+        document.getElementById('location').textContent = data.location || '';
+        document.getElementById('description').textContent = data.description || '';
+        document.getElementById('portfolio-link').href = `portfolio.html?id=${id}`;
+
+        const links = data.social || {};
+        const container = document.getElementById('social-links');
+        for (const [key, url] of Object.entries(links)) {
+          if (url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.textContent = key;
+            a.target = '_blank';
+            a.className = 'text-orange-500 underline';
+            container.appendChild(a);
+          }
+        }
+      } catch (err) {
+        main.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    loadProfile();
+
+    // Show edit link if current user matches profile
+    onAuthStateChanged(auth, user => {
+      if (user && user.uid === id) {
+        const edit = document.getElementById('edit-link');
+        edit.href = 'edit-profile.html';
+        edit.classList.remove('hidden');
+      }
+    });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
 </body>
 </html>

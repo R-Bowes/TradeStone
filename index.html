@@ -9,48 +9,23 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between p-4 bg-white shadow">
-    <div class="flex items-center space-x-2">
-      <!-- Logo -->
-      <svg class="h-6 w-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">T</text>
-      </svg>
-      <h1 class="text-xl font-bold">TradeStone</h1>
-    </div>
-    <!-- Hamburger menu -->
-    <button id="open-menu" aria-label="Open menu" class="p-2 focus:ring-2 focus:ring-orange-500 rounded">
-      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-  </header>
-
-  <!-- Mobile Menu -->
-  <nav id="mobile-menu" class="hidden fixed inset-0 bg-white p-4 z-20 overflow-y-auto">
-    <button id="close-menu" aria-label="Close menu" class="mb-4 focus:ring-2 focus:ring-orange-500 rounded">
-      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    </button>
-    <ul class="space-y-4">
-      <li><a href="index.html" class="block text-lg font-medium">Home</a></li>
-      <li><a href="#" class="block text-lg font-medium">Marketplace</a></li>
-      <li><a href="#" class="block text-lg font-medium">Post</a></li>
-      <li><a href="#" class="block text-lg font-medium">Messages</a></li>
-      <li><a href="login.html" class="block text-lg font-medium">Profile</a></li>
-    </ul>
-  </nav>
+  <!-- Reusable Header -->
+  <div id="header"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      });
+  </script>
 
   <!-- Hero / Intro -->
   <section class="px-4 py-6 text-center">
-    <h2 class="text-3xl font-extrabold mb-2">Where Trade Meets Tech</h2>
-    <p class="text-gray-700 mb-6">
-      Buy &amp; sell surplus materials. Hire contractors. Apply for contracts.<br>
-      All in one place.
+    <h2 class="text-5xl font-extrabold mb-2">Welcome to TradeStone</h2>
+    <p class="text-gray-700 text-xl mb-6">
+      Grow your business with TradeStone – the absolute platform for tradespeople.
+Buy and sell excess materials, win more work, and connect with the right clients<br>
+      All right here.
     </p>
   </section>
 
@@ -58,11 +33,11 @@
   <section class="px-4 pb-8 text-center">
     <div class="flex flex-col sm:flex-row justify-center gap-4">
       <a href="signup.html"
-         class="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium focus:ring-2 focus:ring-orange-400">
+         class="px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold focus:ring-2 focus:ring-orange-500">
         Sign Up
       </a>
       <a href="login.html"
-         class="px-6 py-3 border border-orange-500 text-orange-500 rounded-lg font-medium focus:ring-2 focus:ring-orange-400">
+         class="px-8 py-4 border border-orange-600 text-orange-600 hover:bg-orange-50 rounded-lg font-semibold focus:ring-2 focus:ring-orange-500">
         Log In
       </a>
     </div>
@@ -73,9 +48,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <!-- Card 1 -->
       <div class="bg-white rounded-xl shadow p-4 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-10 w-10 mx-auto mb-2 text-orange-500"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="h-10 w-10 mx-auto mb-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4
                    M7 13l-1.34 2.68A1 1 0 006.64 17H19
@@ -86,25 +59,23 @@
         <p class="text-gray-600 text-sm">Find surplus tools &amp; materials near you.</p>
       </div>
       <!-- Card 2 -->
-      <div class="bg-white rounded-xl shadow p-4 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-10 w-10 mx-auto mb-2 text-orange-500"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 
-                   3.75 3.75 0 0 1 7.5 0ZM4.501 
-                   20.118a7.5 7.5 0 0 1 14.998 
-                   0A17.933 17.933 0 0 1 12 
-                   21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-        </svg>
-        <h3 class="font-semibold mb-1">Hire Contractors</h3>
-        <p class="text-gray-600 text-sm">Browse verified professionals.</p>
-      </div>
+      <a href="browse-pros.html" class="block">
+        <div class="bg-white rounded-xl shadow p-4 text-center">
+          <svg class="h-10 w-10 mx-auto mb-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0
+                     3.75 3.75 0 0 1 7.5 0ZM4.501
+                     20.118a7.5 7.5 0 0 1 14.998
+                     0A17.933 17.933 0 0 1 12
+                     21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+          </svg>
+          <h3 class="font-semibold mb-1">Hire Contractors</h3>
+          <p class="text-gray-600 text-sm">Browse verified professionals.</p>
+        </div>
+      </a>
       <!-- Card 3 -->
       <div class="bg-white rounded-xl shadow p-4 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-10 w-10 mx-auto mb-2 text-orange-500"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="h-10 w-10 mx-auto mb-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M7 7h10M7 11h6m-6 4h10M5 3h14a2  
                    2 0 012 2v14a2 2 0 01-2 2H5a2  
@@ -124,21 +95,19 @@
       </svg>
       <span class="text-xs">Home</span>
     </a>
-    <a href="#" class="flex flex-col items-center text-gray-600">
+    <a href="marketplace.html" class="flex flex-col items-center text-gray-600">
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 4h16v3h-16v-3zm0 5h16v3h-16v-3zm0 5h16v3h-16v-3z"/>
       </svg>
       <span class="text-xs">Marketplace</span>
     </a>
-    <a href="#" class="flex flex-col items-center text-gray-600">
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="h-6 w-6 mb-1 text-gray-600"
-           fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+    <a href="post.html" class="flex flex-col items-center text-gray-600">
+      <svg class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
       <span class="text-xs">Post</span>
     </a>
-    <a href="#" class="flex flex-col items-center text-gray-600">
+    <a href="messages.html" class="flex flex-col items-center text-gray-600">
       <svg class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 4h16v12h-4l-4 4-4-4h-4z"/>
       </svg>
@@ -153,15 +122,11 @@
       <span class="text-xs">Profile</span>
     </a>
   </nav>
-
-  <!-- Mobile menu toggle script -->
+  <div id="footer"></div>
   <script>
-    const openBtn  = document.getElementById('open-menu');
-    const closeBtn = document.getElementById('close-menu');
-    const menu     = document.getElementById('mobile-menu');
-    openBtn.addEventListener('click', () => menu.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => menu.classList.add('hidden'));
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
-
 </body>
 </html>

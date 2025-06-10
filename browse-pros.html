@@ -19,7 +19,7 @@
   </script>
 
   <!-- Profile List -->
-  <main class="max-w-md mx-auto mt-4 p-4 space-y-4" id="pro-list">
+  <main class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4" id="pro-list">
     <!-- Profiles will be injected here -->
   </main>
 
@@ -38,7 +38,15 @@
         const data = doc.data();
 
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
+        card.className = 'bg-white rounded-lg shadow p-4 space-y-2';
+
+        if (data.logoUrl) {
+          const logo = document.createElement('img');
+          logo.src = data.logoUrl;
+          logo.alt = data.businessName || 'Logo';
+          logo.className = 'w-full h-32 object-contain';
+          card.appendChild(logo);
+        }
 
         const name = document.createElement('h2');
         name.className = 'text-lg font-bold';
@@ -52,6 +60,12 @@
         locationEl.className = 'text-sm text-gray-700';
         locationEl.textContent = data.location || '';
 
+        const radiusEl = document.createElement('p');
+        radiusEl.className = 'text-sm text-gray-700';
+        if (data.travelRadius && data.location) {
+          radiusEl.textContent = `${data.travelRadius} miles from ${data.location}`;
+        }
+
         const profileLink = document.createElement('a');
         profileLink.href = `professional-profile.html?id=${doc.id}`;
         profileLink.className = 'text-orange-500 block';
@@ -62,7 +76,7 @@
         portfolioLink.className = 'text-orange-500 block';
         portfolioLink.textContent = 'View Portfolio';
 
-        card.append(name, trade, locationEl, profileLink, portfolioLink);
+        card.append(name, trade, locationEl, radiusEl, profileLink, portfolioLink);
         list.appendChild(card);
       });
     }

@@ -17,4 +17,11 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 - Professionals can create a profile which is stored in Firestore and displayed on the browse page.
 - Error messages for login, signup, and account settings now appear directly on the page instead of using browser alert dialogs.
 
+### Blog
+
+- Visit **Blog** from the burger menu to read community posts.
+- When logged in, a form appears allowing you to publish a new post.
+- Click a post title to view it on its own page. There you can comment and hit the **Hammer** button to like the post.
+- Posting and commenting are restricted to authenticated users.
+
 All pages import `firebase-init.js` which centralizes Firebase initialization. Update that file with your credentials and the app will use them across every page.

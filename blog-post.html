@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <div id="header"></div>
+  <script type="module">
+    import { loadHeader } from './loadHeader.js';
+    loadHeader();
+  </script>
+
+  <main class="max-w-2xl mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h2 id="title" class="text-2xl font-bold mb-2"></h2>
+    <p id="content" class="mb-4"></p>
+    <button id="hammer-btn" class="bg-orange-500 text-white px-3 py-1 rounded mb-4">Hammer (<span id="hammer-count">0</span>)</button>
+    <div id="comments" class="space-y-2"></div>
+    <form id="comment-form" class="space-y-2 mt-4 hidden">
+      <textarea id="comment-text" required class="w-full p-2 border rounded" placeholder="Add a comment"></textarea>
+      <button type="submit" class="bg-orange-500 text-white px-3 py-1 rounded">Comment</button>
+    </form>
+  </main>
+
+  <script type="module">
+    import { initFirebase } from './firebase-init.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { getPost, getComments, addComment, toggleHammer } from './blog.js';
+
+    const { auth } = initFirebase();
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+
+    const titleEl = document.getElementById('title');
+    const contentEl = document.getElementById('content');
+    const hammerBtn = document.getElementById('hammer-btn');
+    const hammerCount = document.getElementById('hammer-count');
+    const commentsEl = document.getElementById('comments');
+    const commentForm = document.getElementById('comment-form');
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        commentForm.classList.remove('hidden');
+        commentForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          await addComment(postId, user.uid, document.getElementById('comment-text').value);
+          commentForm.reset();
+          loadComments();
+        });
+        hammerBtn.addEventListener('click', async () => {
+          await toggleHammer(postId, user.uid);
+          const post = await getPost(postId);
+          hammerCount.textContent = post.hammerCount || 0;
+        });
+      } else {
+        hammerBtn.disabled = true;
+      }
+    });
+
+    async function loadPost() {
+      const post = await getPost(postId);
+      if (!post) {
+        titleEl.textContent = 'Post not found';
+        return;
+      }
+      titleEl.textContent = post.title;
+      contentEl.textContent = post.content;
+      hammerCount.textContent = post.hammerCount || 0;
+    }
+
+    async function loadComments() {
+      const comments = await getComments(postId);
+      commentsEl.innerHTML = '';
+      if (!comments.length) {
+        commentsEl.innerHTML = '<p>No comments yet.</p>';
+        return;
+      }
+      for (const c of comments) {
+        const div = document.createElement('div');
+        div.className = 'border-b pb-2';
+        div.textContent = c.text;
+        commentsEl.appendChild(div);
+      }
+    }
+
+    loadPost();
+    loadComments();
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
+</body>
+</html>

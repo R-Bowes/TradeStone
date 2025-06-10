@@ -82,14 +82,21 @@
     });
 
     const form = document.getElementById('login-form');
-    const errorEl = document.getElementById('error-msg');
+    const errorEl = document.getElementById('error-msg'); // Define error element
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email regex
 
     // Handle form submission for login
     form.addEventListener('submit', async e => {
       e.preventDefault();
       errorEl.textContent = ''; // Clear previous error messages
 
-      const email    = form.email.value;
+      const email = form.email.value;
+      // Validate email format using regex
+      if (!emailRegex.test(email)) {
+        errorEl.textContent = 'Please enter a valid email address.'; // Use errorEl for message
+        form.email.focus();
+        return;
+      }
       const password = form.password.value;
 
       try {

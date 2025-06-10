@@ -96,7 +96,8 @@
     });
 
     const form = document.getElementById('signup-form');
-    const errorEl = document.getElementById('error-msg'); // Standardized variable name
+    const errorEl = document.getElementById('error-msg'); // Define error element
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email regex
 
     // Handle form submission for signup
     form.addEventListener('submit', async e => {
@@ -104,6 +105,12 @@
       errorEl.textContent = ''; // Clear any previous error messages
 
       const email       = form.email.value;
+      // Validate email format using regex
+      if (!emailRegex.test(email)) {
+        errorEl.textContent = 'Please enter a valid email address.'; // Use errorEl for message
+        form.email.focus();
+        return;
+      }
       const password    = form.password.value;
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;

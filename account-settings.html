@@ -77,22 +77,28 @@
     import { initFirebase } from './firebase-init.js';
 
     const { auth, db, storage } = initFirebase();
-    let userRef;
+    let userRef; // This will hold the Firestore document reference for the current user
 
+    // Listen for authentication state changes
     onAuthStateChanged(auth, async user => {
       if (!user) {
+        // If no user is logged in, redirect to the login page
         window.location.href = 'login.html';
       } else {
+        // If a user is logged in, display their email
         document.getElementById('current-email').textContent = user.email;
+        // Set up the user's Firestore document reference
         userRef = doc(db, 'users', user.uid);
-        const snap = await getDoc(userRef);
+        const snap = await getDoc(userRef); // Get the user's data from Firestore
         if (snap.exists()) {
           const data = snap.data();
+          // Load notification preferences
           if (data.notifications) {
             const n = data.notifications;
             document.getElementById('emailUpdates').checked = !!n.emailUpdates;
             document.getElementById('smsUpdates').checked = !!n.smsUpdates;
           }
+          // Load and display avatar
           if (data.avatarUrl) {
             const img = document.getElementById('current-avatar');
             img.src = data.avatarUrl;
@@ -103,87 +109,104 @@
       }
     });
 
+    // Regex for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     // Use a single set of error and success message elements for the main section
     const mainErrorMsg = document.getElementById('main-error-msg');
     const mainSuccessMsg = document.getElementById('main-success-msg');
 
+    // Function to clear all messages
     function clearMessages() {
       mainErrorMsg.textContent = '';
       mainSuccessMsg.textContent = '';
     }
 
+    // Handle email update form submission
     document.getElementById('update-email-form').addEventListener('submit', async e => {
       e.preventDefault();
-      clearMessages();
+      clearMessages(); // Clear existing messages
       const newEmail = e.target.newEmail.value;
+      // Validate email format
+      if (!emailRegex.test(newEmail)) {
+        mainErrorMsg.textContent = 'Please enter a valid email address.';
+        e.target.newEmail.focus();
+        return;
+      }
       try {
         await updateEmail(auth.currentUser, newEmail);
         mainSuccessMsg.textContent = 'Email updated successfully!';
+        document.getElementById('current-email').textContent = newEmail; // Update displayed email
       } catch (err) {
         mainErrorMsg.textContent = err.message;
       }
     });
 
+    // Handle password update form submission
     document.getElementById('update-password-form').addEventListener('submit', async e => {
       e.preventDefault();
-      clearMessages();
+      clearMessages(); // Clear existing messages
       const newPassword = e.target.newPassword.value;
       try {
         await updatePassword(auth.currentUser, newPassword);
         mainSuccessMsg.textContent = 'Password updated successfully!';
+        e.target.newPassword.value = ''; // Clear the password field
       } catch (err) {
         mainErrorMsg.textContent = err.message;
       }
     });
 
+    // Handle avatar upload
     const avatarInput = document.getElementById('avatar');
     avatarInput.addEventListener('change', async e => {
-      clearMessages();
+      clearMessages(); // Clear existing messages
       const file = e.target.files[0];
-      if (!file || !auth.currentUser) return;
+      if (!file || !auth.currentUser) return; // Exit if no file or user
       const avatarRef = ref(storage, `users/${auth.currentUser.uid}/avatar-${Date.now()}-${file.name}`);
       try {
         await uploadBytes(avatarRef, file);
         const url = await getDownloadURL(avatarRef);
-        await updateDoc(userRef, { avatarUrl: url }, { merge: true });
+        await updateDoc(userRef, { avatarUrl: url }, { merge: true }); // Update Firestore with new URL
         const img = document.getElementById('current-avatar');
-        img.src = url;
-        img.classList.remove('hidden');
-        document.getElementById('remove-avatar-btn').classList.remove('hidden');
+        img.src = url; // Update image source
+        img.classList.remove('hidden'); // Show image
+        document.getElementById('remove-avatar-btn').classList.remove('hidden'); // Show remove button
         mainSuccessMsg.textContent = 'Avatar uploaded successfully!';
       } catch (err) {
         mainErrorMsg.textContent = 'Failed to upload avatar: ' + err.message;
       }
     });
 
+    // Handle avatar removal
     document.getElementById('remove-avatar-btn').addEventListener('click', async () => {
-      clearMessages();
-      if (!auth.currentUser) return;
+      clearMessages(); // Clear existing messages
+      if (!auth.currentUser) return; // Exit if no user
       const img = document.getElementById('current-avatar');
-      const url = img.src;
+      const url = img.src; // Get current image URL
       if (url) {
         try {
-          await deleteObject(ref(storage, url));
+          await deleteObject(ref(storage, url)); // Delete file from storage
         } catch (err) {
           console.error("Error deleting old avatar from storage:", err);
-          // Don't show this error to the user unless it prevents the database update
+          // Only log this error, as the main goal is to clear the database entry
         }
       }
       try {
-        await updateDoc(userRef, { avatarUrl: deleteField() }, { merge: true });
-        img.src = '';
-        img.classList.add('hidden');
-        document.getElementById('remove-avatar-btn').classList.add('hidden');
-        avatarInput.value = ''; // Clear the file input
+        await updateDoc(userRef, { avatarUrl: deleteField() }, { merge: true }); // Remove URL from Firestore
+        img.src = ''; // Clear image source
+        img.classList.add('hidden'); // Hide image
+        document.getElementById('remove-avatar-btn').classList.add('hidden'); // Hide remove button
+        avatarInput.value = ''; // Clear the file input for re-upload
         mainSuccessMsg.textContent = 'Avatar removed successfully!';
       } catch (err) {
         mainErrorMsg.textContent = 'Failed to remove avatar: ' + err.message;
       }
     });
 
+    // Handle notification preferences change
     document.getElementById('notif-form').addEventListener('change', async () => {
-      clearMessages();
-      if (!auth.currentUser) return;
+      clearMessages(); // Clear existing messages
+      if (!auth.currentUser) return; // Exit if no user
       const prefs = {
         emailUpdates: document.getElementById('emailUpdates').checked,
         smsUpdates: document.getElementById('smsUpdates').checked
@@ -196,31 +219,35 @@
       }
     });
 
+    // Delete account modal and logic
     const deleteModal = document.getElementById('delete-confirm-modal');
     const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
+    // Show delete confirmation modal
     document.getElementById('delete-account-btn').addEventListener('click', () => {
       clearMessages(); // Clear any existing messages before showing modal
       deleteModal.classList.remove('hidden');
     });
 
+    // Hide delete confirmation modal
     cancelDeleteBtn.addEventListener('click', () => {
       deleteModal.classList.add('hidden');
     });
 
+    // Confirm account deletion
     confirmDeleteBtn.addEventListener('click', async () => {
-      deleteModal.classList.add('hidden');
+      deleteModal.classList.add('hidden'); // Hide modal
       clearMessages(); // Clear messages again before performing delete operation
-      if (!auth.currentUser) return;
+      if (!auth.currentUser) return; // Exit if no user
       try {
-        // Assuming 'profiles' collection also needs to be deleted
-        await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
+        // Delete profile and user data from Firestore, then delete Firebase Auth user
+        await deleteDoc(doc(db, 'profiles', auth.currentUser.uid)); // Assuming 'profiles' collection also needs to be deleted
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);
-        window.location.href = 'signup.html'; // Redirect after successful deletion
+        window.location.href = 'signup.html'; // Redirect to signup page after successful deletion
       } catch (err) {
-        mainErrorMsg.textContent = err.message;
+        mainErrorMsg.textContent = err.message; // Display any error during deletion
       }
     });
   </script>

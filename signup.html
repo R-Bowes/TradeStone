@@ -51,6 +51,7 @@
         Sign Up
       </button>
     </form>
+    <div id="error-msg" class="text-red-500 mt-2"></div>
   </main>
 
   <!-- Home button -->
@@ -93,14 +94,16 @@
     });
 
     const form = document.getElementById('signup-form');
+    const errorEl = document.getElementById('error-msg');
     form.addEventListener('submit', async e => {
       e.preventDefault();
+      errorEl.textContent = '';
       const email       = form.email.value;
       const password    = form.password.value;
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
       if (password !== confirm) {
-        alert('Passwords do not match.');
+        errorEl.textContent = 'Passwords do not match.';
         return;
       }
       try {
@@ -115,9 +118,16 @@
           window.location.href = 'personal-dashboard.html';
         }
       } catch(err) {
-        alert(err.message);
+        errorEl.textContent = err.message;
       }
     });
+  </script>
+
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 
 </body>

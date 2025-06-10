@@ -51,19 +51,31 @@
     </form>
 
     <button id="delete-account-btn" class="w-full py-2 bg-red-500 text-white rounded">Delete Account</button>
+    <div id="error-msg" class="text-red-500 text-center"></div>
+    <div id="success-msg" class="text-green-500 text-center"></div>
   </main>
 
   <div class="text-center mt-6">
     <a href="professional-dashboard.html" class="text-orange-500 font-medium">Back to Dashboard</a>
   </div>
 
-    <script type="module">
-      import { onAuthStateChanged, updateEmail, updatePassword, deleteUser } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-      import { doc, getDoc, updateDoc, deleteDoc, deleteField } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
-      import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
-      import { initFirebase } from './firebase-init.js';
+  <div id="confirm-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+    <div class="bg-white p-4 rounded text-center space-y-4">
+      <p>Delete your account and profile? This cannot be undone.</p>
+      <div class="flex justify-end space-x-2">
+        <button id="cancel-delete" class="px-3 py-1 border rounded">Cancel</button>
+        <button id="confirm-delete" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+      </div>
+    </div>
+  </div>
 
-      const { auth, db, storage } = initFirebase();
+  <script type="module">
+    import { onAuthStateChanged, updateEmail, updatePassword, deleteUser } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { doc, getDoc, updateDoc, deleteDoc, deleteField } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
+    import { initFirebase } from './firebase-init.js';
+
+    const { auth, db, storage } = initFirebase();
     let userRef;
 
     onAuthStateChanged(auth, async user => {
@@ -90,25 +102,32 @@
       }
     });
 
+    const errorEl = document.getElementById('error-msg');
+    const successEl = document.getElementById('success-msg');
+
     document.getElementById('update-email-form').addEventListener('submit', async e => {
       e.preventDefault();
+      errorEl.textContent = '';
+      successEl.textContent = '';
       const newEmail = e.target.newEmail.value;
       try {
         await updateEmail(auth.currentUser, newEmail);
-        alert('Email updated');
+        successEl.textContent = 'Email updated';
       } catch (err) {
-        alert(err.message);
+        errorEl.textContent = err.message;
       }
     });
 
     document.getElementById('update-password-form').addEventListener('submit', async e => {
       e.preventDefault();
+      errorEl.textContent = '';
+      successEl.textContent = '';
       const newPassword = e.target.newPassword.value;
       try {
         await updatePassword(auth.currentUser, newPassword);
-        alert('Password updated');
+        successEl.textContent = 'Password updated';
       } catch (err) {
-        alert(err.message);
+        errorEl.textContent = err.message;
       }
     });
 
@@ -153,19 +172,39 @@
       await updateDoc(doc(db, 'users', auth.currentUser.uid), { notifications: prefs }, { merge: true });
     });
 
-    document.getElementById('delete-account-btn').addEventListener('click', async () => {
+    const modal = document.getElementById('confirm-modal');
+    const cancelBtn = document.getElementById('cancel-delete');
+    const confirmBtn = document.getElementById('confirm-delete');
+
+    document.getElementById('delete-account-btn').addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      errorEl.textContent = '';
+      successEl.textContent = '';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+      modal.classList.add('hidden');
       if (!auth.currentUser) return;
-      const confirmation = confirm('Delete your account and profile? This cannot be undone.');
-      if (!confirmation) return;
       try {
+        // Assuming 'profiles' collection also needs to be deleted
         await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);
         window.location.href = 'signup.html';
       } catch (err) {
-        alert(err.message);
+        errorEl.textContent = err.message;
       }
     });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>

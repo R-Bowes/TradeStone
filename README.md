@@ -17,6 +17,12 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 - Professionals can create a profile which is stored in Firestore and displayed on the browse page.
 - Error messages for login, signup, and account settings now appear directly on the page instead of using browser alert dialogs.
 
+### Marketplace
+
+- Both professional and personal accounts can list surplus materials or tools from `marketplace.html` once signed in.
+- Use the search bar on that page to look for items and apply the filter checkboxes to narrow the results.
+- Free accounts may list items but cannot offer paid services; Pro accounts gain additional selling features.
+
 ### Blog
 
 - Visit **Blog** from the burger menu to read community posts.

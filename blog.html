@@ -7,24 +7,62 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
-
-  <!-- Header -->
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <!-- Main Content -->
-  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
+  <main class="max-w-2xl mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h2 class="text-2xl font-bold mb-4">Blog</h2>
-    <p>Coming soon... Share tips or ask for advice from other members.</p>
+    <form id="post-form" class="space-y-2 mb-6 hidden">
+      <input id="title" type="text" required placeholder="Title" class="w-full p-2 border rounded">
+      <textarea id="content" required placeholder="Share something..." class="w-full p-2 border rounded"></textarea>
+      <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded">Post</button>
+    </form>
+    <div id="posts-list" class="space-y-4"></div>
   </main>
 
-  <!-- Firebase Init -->
   <script type="module">
     import { initFirebase } from './firebase-init.js';
-    initFirebase();
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+    import { createPost, getPosts } from './blog.js';
+
+    const { auth } = initFirebase();
+    const form = document.getElementById('post-form');
+    const list = document.getElementById('posts-list');
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        form.classList.remove('hidden');
+        form.addEventListener('submit', async e => {
+          e.preventDefault();
+          await createPost(user.uid, form.title.value, form.content.value);
+          form.reset();
+          loadPosts();
+        });
+      }
+    });
+
+    async function loadPosts() {
+      list.innerHTML = '';
+      const posts = await getPosts();
+      if (!posts.length) {
+        list.innerHTML = '<p class="text-center">No posts yet.</p>';
+        return;
+      }
+      for (const post of posts) {
+        const div = document.createElement('div');
+        div.className = 'border-b pb-4';
+        div.innerHTML = `
+          <h3 class="text-xl font-bold"><a href="blog-post.html?id=${post.id}" class="text-orange-500 hover:underline">${post.title}</a></h3>
+          <p class="text-sm text-gray-700">${post.content.slice(0,100)}${post.content.length>100?'...':''}</p>
+          <p class="text-xs text-gray-500">Hammers: ${post.hammerCount || 0}</p>`;
+        list.appendChild(div);
+      }
+    }
+
+    loadPosts();
   </script>
   <div id="footer"></div>
   <script>
@@ -32,6 +70,5 @@
       .then(res => res.text())
       .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
-
 </body>
 </html>

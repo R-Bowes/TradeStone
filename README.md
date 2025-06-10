@@ -7,7 +7,9 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 ## Setup
 
 1. Create a Firebase project and copy its configuration.
-2. Paste that configuration into `firebase-init.js` in the project root, replacing the sample values.
+2. Provide the credentials using environment variables or a config file:
+   - Set variables like `FIREBASE_API_KEY` and `FIREBASE_AUTH_DOMAIN` when bundling/serving the app.
+   - Or create `firebase-config.js` in the project root based on `firebase-config.example.js` and include it before `firebase-init.js` in your HTML.
 3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
 
 ## Usage
@@ -30,7 +32,7 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 - Click a post title to view it on its own page. There you can comment and hit the **Hammer** button to like the post.
 - Posting and commenting are restricted to authenticated users.
 
-All pages import `firebase-init.js` which centralizes Firebase initialization. Update that file with your credentials and the app will use them across every page.
+All pages import `firebase-init.js` which centralizes Firebase initialization. Supply credentials via environment variables or `firebase-config.js` and the app will use them across every page.
 
 ### Marketplace
 

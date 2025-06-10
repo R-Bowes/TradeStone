@@ -18,10 +18,34 @@
       });
   </script>
 
-  <!-- Profile List -->
-  <main class="max-w-md mx-auto mt-4 p-4 space-y-4" id="pro-list">
-    <!-- Profiles will be injected here -->
-  </main>
+  <!-- Filters + Profile List -->
+  <div class="max-w-6xl mx-auto mt-4 p-4 flex gap-4">
+    <aside class="w-64 space-y-4 bg-white rounded-lg shadow p-4">
+      <div>
+        <label for="search" class="block mb-1">Search</label>
+        <input id="search" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="location-filter" class="block mb-1">Location</label>
+        <input id="location-filter" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <p class="font-medium mb-1">Trade Type</p>
+        <div class="space-y-1">
+          <label class="block"><input type="checkbox" value="Plumbing" class="trade-checkbox mr-2">Plumbing</label>
+          <label class="block"><input type="checkbox" value="Electrical" class="trade-checkbox mr-2">Electrical</label>
+          <label class="block"><input type="checkbox" value="Carpentry" class="trade-checkbox mr-2">Carpentry</label>
+          <label class="block"><input type="checkbox" value="Masonry" class="trade-checkbox mr-2">Masonry</label>
+          <label class="block"><input type="checkbox" value="Painting" class="trade-checkbox mr-2">Painting</label>
+          <label class="block"><input type="checkbox" value="General" class="trade-checkbox mr-2">General</label>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 grid gap-4" id="pro-list">
+      <!-- Profiles will be injected here -->
+    </main>
+  </div>
 
   <!-- Firebase Script -->
   <script type="module">
@@ -29,43 +53,64 @@
     import { initFirebase } from './firebase-init.js';
 
     const { db } = initFirebase();
+    let allProfiles = [];
+    const list = document.getElementById('pro-list');
+
+    function createCard(data, id) {
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
+
+      const name = document.createElement('h2');
+      name.className = 'text-lg font-bold';
+      name.textContent = data.businessName || '';
+
+      const trade = document.createElement('p');
+      trade.className = 'text-sm text-gray-700';
+      trade.textContent = data.tradeType || '';
+
+      const locationEl = document.createElement('p');
+      locationEl.className = 'text-sm text-gray-700';
+      locationEl.textContent = data.location || '';
+
+      const profileLink = document.createElement('a');
+      profileLink.href = `professional-profile.html?id=${id}`;
+      profileLink.className = 'text-orange-500 block';
+      profileLink.textContent = 'View Profile';
+
+      const portfolioLink = document.createElement('a');
+      portfolioLink.href = `portfolio.html?id=${id}`;
+      portfolioLink.className = 'text-orange-500 block';
+      portfolioLink.textContent = 'View Portfolio';
+
+      card.append(name, trade, locationEl, profileLink, portfolioLink);
+      return card;
+    }
+
+    function filterAndRender() {
+      const term = document.getElementById('search').value.toLowerCase();
+      const loc = document.getElementById('location-filter').value.toLowerCase();
+      const selectedTrades = Array.from(document.querySelectorAll('.trade-checkbox:checked')).map(cb => cb.value);
+
+      const filtered = allProfiles.filter(p => {
+        const nameMatch = !term || (p.businessName || '').toLowerCase().includes(term);
+        const locMatch = !loc || (p.location || '').toLowerCase().includes(loc);
+        const tradeMatch = selectedTrades.length === 0 || selectedTrades.includes(p.tradeType);
+        return nameMatch && locMatch && tradeMatch;
+      });
+
+      list.innerHTML = '';
+      filtered.forEach(p => list.appendChild(createCard(p, p.id)));
+    }
 
     async function loadProfessionals() {
       const querySnapshot = await getDocs(collection(db, 'profiles'));
-      const list = document.getElementById('pro-list');
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-4 space-y-1';
-
-        const name = document.createElement('h2');
-        name.className = 'text-lg font-bold';
-        name.textContent = data.businessName || '';
-
-        const trade = document.createElement('p');
-        trade.className = 'text-sm text-gray-700';
-        trade.textContent = data.tradeType || '';
-
-        const locationEl = document.createElement('p');
-        locationEl.className = 'text-sm text-gray-700';
-        locationEl.textContent = data.location || '';
-
-        const profileLink = document.createElement('a');
-        profileLink.href = `professional-profile.html?id=${doc.id}`;
-        profileLink.className = 'text-orange-500 block';
-        profileLink.textContent = 'View Profile';
-
-        const portfolioLink = document.createElement('a');
-        portfolioLink.href = `portfolio.html?id=${doc.id}`;
-        portfolioLink.className = 'text-orange-500 block';
-        portfolioLink.textContent = 'View Portfolio';
-
-        card.append(name, trade, locationEl, profileLink, portfolioLink);
-        list.appendChild(card);
-      });
+      allProfiles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      filterAndRender();
     }
+
+    document.getElementById('search').addEventListener('input', filterAndRender);
+    document.getElementById('location-filter').addEventListener('input', filterAndRender);
+    document.querySelectorAll('.trade-checkbox').forEach(cb => cb.addEventListener('change', filterAndRender));
 
     loadProfessionals();
   </script>

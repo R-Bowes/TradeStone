@@ -32,6 +32,13 @@ function createCard(item) {
   condition.textContent = item.condition;
   card.appendChild(condition);
 
+  if (item.location) {
+    const locationEl = document.createElement('p');
+    locationEl.className = 'text-sm text-gray-700';
+    locationEl.textContent = item.location;
+    card.appendChild(locationEl);
+  }
+
   return card;
 }
 

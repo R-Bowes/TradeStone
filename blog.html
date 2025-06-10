@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+
+  <!-- Header -->
+  <div id="header"></div>
+  <script type="module">
+    import { loadHeader } from './loadHeader.js';
+    loadHeader();
+  </script>
+
+  <!-- Main Content -->
+  <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center">
+    <h2 class="text-2xl font-bold mb-4">Blog</h2>
+    <p>Coming soon... Share tips or ask for advice from other members.</p>
+  </main>
+
+  <!-- Firebase Init -->
+  <script type="module">
+    import { initFirebase } from './firebase-init.js';
+    initFirebase();
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
+
+</body>
+</html>

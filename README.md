@@ -12,8 +12,8 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 
 ## Usage
 
-- Sign up via `professional-signup.html` or `personal-signup.html` depending on the desired account type.
-- Login through `professional-login.html` or `personal-login.html` to access the respective dashboard.
+- Sign up via `signup.html` and choose whether you need a professional or personal account on that page.
+- Log in through `login.html`, which will route you to the appropriate dashboard once authenticated.
 - Professionals can create a profile which is stored in Firestore and displayed on the browse page.
 - Error messages for login, signup, and account settings now appear directly on the page instead of using browser alert dialogs.
 

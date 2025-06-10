@@ -44,6 +44,7 @@ function createCard(item) {
 
 function filterAndRender() {
   const search = document.getElementById('search').value.toLowerCase();
+  const location = document.getElementById('location-filter').value.trim().toLowerCase();
   const selectedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
   const selectedAges = Array.from(document.querySelectorAll('.age-checkbox:checked')).map(cb => cb.value);
 
@@ -51,7 +52,8 @@ function filterAndRender() {
     const matchText = !search || (it.title && it.title.toLowerCase().includes(search)) || (it.description && it.description.toLowerCase().includes(search));
     const matchCat = selectedCats.length === 0 || selectedCats.includes(it.category);
     const matchAge = selectedAges.length === 0 || selectedAges.includes(it.condition);
-    return matchText && matchCat && matchAge;
+    const matchLocation = !location || (it.location && it.location.toLowerCase().includes(location));
+    return matchText && matchCat && matchAge && matchLocation;
   });
 
   list.innerHTML = '';

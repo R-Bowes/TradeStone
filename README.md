@@ -20,7 +20,7 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 ### Marketplace
 
 - Both professional and personal accounts can list surplus materials or tools from `marketplace.html` once signed in.
-- Use the search bar on that page to look for items and apply the filter checkboxes to narrow the results.
+- Use the search bar on that page to look for items, filter by location, and apply the filter checkboxes to narrow the results.
 - Free accounts may list items but cannot offer paid services; Pro accounts gain additional selling features.
 
 ### Blog
@@ -34,7 +34,7 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. U
 
 ### Marketplace
 
-- Browse items on `marketplace.html`. Use the sidebar to search by text and filter by category.
+- Browse items on `marketplace.html`. Use the sidebar to search by text, filter by location, and narrow results by category.
 - Logged in users can list items from `post.html`. Upload images and provide details like price and condition.
 - Items are stored in the `marketplaceItems` collection with fields:
   - `title` – item name

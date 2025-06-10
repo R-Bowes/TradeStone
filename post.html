@@ -45,6 +45,10 @@
         </select>
       </div>
       <div>
+        <label for="location" class="block mb-1">Location</label>
+        <input id="location" name="location" type="text" class="w-full p-2 border rounded" required />
+      </div>
+      <div>
         <label for="images" class="block mb-1">Images</label>
         <input id="images" name="images" type="file" accept="image/*" multiple class="w-full" />
       </div>
@@ -79,11 +83,12 @@
           price: parseFloat(form.price.value),
           condition: form.condition.value,
           category: form.category.value,
+          location: form.location.value.trim(),
           postedBy: user.uid,
           createdAt: serverTimestamp()
         };
 
-        if (!data.title || !data.description || isNaN(data.price)) {
+        if (!data.title || !data.description || !data.location || isNaN(data.price)) {
           errorEl.textContent = 'Please fill in all required fields.';
           return;
         }

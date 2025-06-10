@@ -37,12 +37,14 @@ function createCard(item) {
 
 function filterAndRender() {
   const search = document.getElementById('search').value.toLowerCase();
-  const selected = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+  const selectedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+  const selectedAges = Array.from(document.querySelectorAll('.age-checkbox:checked')).map(cb => cb.value);
 
   const filtered = allItems.filter(it => {
     const matchText = !search || (it.title && it.title.toLowerCase().includes(search)) || (it.description && it.description.toLowerCase().includes(search));
-    const matchCat = selected.length === 0 || selected.includes(it.category);
-    return matchText && matchCat;
+    const matchCat = selectedCats.length === 0 || selectedCats.includes(it.category);
+    const matchAge = selectedAges.length === 0 || selectedAges.includes(it.condition);
+    return matchText && matchCat && matchAge;
   });
 
   list.innerHTML = '';

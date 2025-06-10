@@ -50,7 +50,8 @@
         Sign Up
       </button>
     </form>
-    <div id="error-msg" class="text-red-500 mt-2 text-center"></div> </main>
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
+  </main>
 
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
@@ -69,12 +70,16 @@
   </div>
 
   <script type="module">
+    // Import necessary Firebase modules
     import { onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    // Import your centralized Firebase initialization
     import { initFirebase } from './firebase-init.js';
 
+    // Initialize Firebase services using your centralized function
     const { auth, db } = initFirebase();
 
+    // Check if a user is already logged in and redirect them
     onAuthStateChanged(auth, async user => {
       if (user) {
         const snap = await getDoc(doc(db, 'users', user.uid));
@@ -92,25 +97,33 @@
 
     const form = document.getElementById('signup-form');
     const errorEl = document.getElementById('error-msg'); // Standardized variable name
+
+    // Handle form submission for signup
     form.addEventListener('submit', async e => {
       e.preventDefault();
       errorEl.textContent = ''; // Clear any previous error messages
+
       const email       = form.email.value;
       const password    = form.password.value;
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
 
+      // Validate passwords match
       if (password !== confirm) {
         errorEl.textContent = 'Passwords do not match.';
         return;
       }
 
       try {
+        // Create user with email and password
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        // Save user account type and default notification settings to Firestore
         await setDoc(doc(db, 'users', user.uid), {
           accountType,
           notifications: { emailUpdates: true, smsUpdates: true } // Default notifications
         });
+
+        // Redirect based on account type
         if (accountType === 'professional') {
           window.location.href = 'create-profile.html';
         } else {

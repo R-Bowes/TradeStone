@@ -32,7 +32,8 @@
         Log In
       </button>
     </form>
-    <div id="error-msg" class="text-red-500 mt-2 text-center"></div> <p class="mt-4 text-center text-sm">
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
+    <p class="mt-4 text-center text-sm">
       Don’t have an account?
       <a href="signup.html" class="text-orange-500 font-medium">Sign up</a>
     </p>
@@ -55,12 +56,16 @@
   </div>
 
   <script type="module">
+    // Import necessary Firebase modules
     import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    // Import your centralized Firebase initialization
     import { initFirebase } from './firebase-init.js';
 
+    // Initialize Firebase services using your centralized function
     const { auth, db } = initFirebase();
 
+    // Check if a user is already logged in and redirect them
     onAuthStateChanged(auth, async user => {
       if (user) {
         const snap = await getDoc(doc(db, 'users', user.uid));
@@ -70,18 +75,23 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
+          // Fallback if user exists in auth but not in Firestore 'users' collection
           window.location.href = 'index.html';
         }
       }
     });
 
     const form = document.getElementById('login-form');
-    const errorEl = document.getElementById('error-msg'); // Standardized variable name
+    const errorEl = document.getElementById('error-msg');
+
+    // Handle form submission for login
     form.addEventListener('submit', async e => {
       e.preventDefault();
       errorEl.textContent = ''; // Clear previous error messages
+
       const email    = form.email.value;
       const password = form.password.value;
+
       try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -91,7 +101,7 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
-          // If user exists in auth but not in 'users' collection (shouldn't happen often if signup flow is correct)
+          // This case should ideally not happen if signup creates the user doc correctly
           window.location.href = 'index.html';
         }
       } catch(err) {

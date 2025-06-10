@@ -40,14 +40,14 @@
     </aside>
 
     <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
-      </main>
+    </main>
   </div>
 
   <script type="module">
     import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
-    import { initFirebase } from './firebase-init.js';
+    import { initFirebase } from './firebase-init.js'; // Use the centralized Firebase init file
 
-    const { db } = initFirebase();
+    const { db } = initFirebase(); // Destructure db from the initialized Firebase app
     let allProfiles = [];
     const list = document.getElementById('pro-list');
 
@@ -130,13 +130,13 @@
       const filtered = allProfiles.filter(p => {
         const nameMatch = !searchTerm || (p.businessName || '').toLowerCase().includes(searchTerm);
         const locationMatch = !locationTerm || (p.location || '').toLowerCase().includes(locationTerm);
-        const tradeMatch = selectedTrades.length === 0 || selectedTrades.includes(p.tradeType);
+        const tradeMatch = selectedTrades.length === 0 || (p.specializations && selectedTrades.some(trade => p.specializations.includes(trade)));
         return nameMatch && locationMatch && tradeMatch;
       });
 
       list.innerHTML = ''; // Clear previous results
       if (filtered.length === 0) {
-        list.innerHTML = '<p>No professionals match your criteria.</p>';
+        list.innerHTML = '<p class="text-gray-700 text-center col-span-full">No professionals match your criteria.</p>';
       } else {
         filtered.forEach(p => list.appendChild(createCard(p)));
       }
@@ -150,7 +150,7 @@
         filterAndRender(); // Initial render
       } catch (error) {
         console.error("Error loading professionals:", error);
-        list.innerHTML = '<p class="text-red-500">Could not load professionals. Please try again later.</p>';
+        list.innerHTML = '<p class="text-red-500 text-center col-span-full">Could not load professionals. Please try again later.</p>';
       }
     }
 

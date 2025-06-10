@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Log In – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
@@ -33,13 +32,13 @@
         Log In
       </button>
     </form>
+    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
     <p class="mt-4 text-center text-sm">
       Don’t have an account?
       <a href="signup.html" class="text-orange-500 font-medium">Sign up</a>
     </p>
   </main>
 
-  <!-- Home button -->
   <div class="text-center mt-6">
     <a href="index.html" class="inline-flex items-center text-gray-600 hover:text-gray-800">
       <svg xmlns="http://www.w3.org/2000/svg"
@@ -56,14 +55,17 @@
     </a>
   </div>
 
-  <!-- Firebase login logic -->
   <script type="module">
+    // Import necessary Firebase modules
     import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    // Import your centralized Firebase initialization
     import { initFirebase } from './firebase-init.js';
 
+    // Initialize Firebase services using your centralized function
     const { auth, db } = initFirebase();
 
+    // Check if a user is already logged in and redirect them
     onAuthStateChanged(auth, async user => {
       if (user) {
         const snap = await getDoc(doc(db, 'users', user.uid));
@@ -73,22 +75,30 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
+          // Fallback if user exists in auth but not in Firestore 'users' collection
           window.location.href = 'index.html';
         }
       }
     });
 
     const form = document.getElementById('login-form');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const errorEl = document.getElementById('error-msg'); // Define error element
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email regex
+
+    // Handle form submission for login
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const email    = form.email.value;
+      errorEl.textContent = ''; // Clear previous error messages
+
+      const email = form.email.value;
+      // Validate email format using regex
       if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
+        errorEl.textContent = 'Please enter a valid email address.'; // Use errorEl for message
         form.email.focus();
         return;
       }
       const password = form.password.value;
+
       try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -98,12 +108,21 @@
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
+          // This case should ideally not happen if signup creates the user doc correctly
           window.location.href = 'index.html';
         }
       } catch(err) {
-        alert(err.message);
+        // Display Firebase authentication errors directly on the page
+        errorEl.textContent = err.message;
       }
     });
+  </script>
+
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 
 </body>

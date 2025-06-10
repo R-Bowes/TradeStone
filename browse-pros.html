@@ -39,15 +39,15 @@
       </div>
     </aside>
 
-    <main class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
-      </main>
+    <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
+    </main>
   </div>
 
   <script type="module">
     import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
-    import { initFirebase } from './firebase-init.js';
+    import { initFirebase } from './firebase-init.js'; // Use the centralized Firebase init file
 
-    const { db } = initFirebase();
+    const { db } = initFirebase(); // Destructure db from the initialized Firebase app
     let allProfiles = [];
     const list = document.getElementById('pro-list');
 
@@ -72,10 +72,29 @@
       const trade = document.createElement('p');
       trade.className = 'text-sm text-gray-700';
       trade.textContent = profileData.tradeType || 'N/A';
-      
+
       const locationEl = document.createElement('p');
       locationEl.className = 'text-sm text-gray-700';
       locationEl.textContent = profileData.location || 'N/A';
+
+      const ratingEl = document.createElement('div');
+      ratingEl.className = 'flex items-center';
+      const ratingValue = typeof profileData.avgRating === 'number' ? profileData.avgRating : profileData.rating;
+      if (typeof ratingValue === 'number') {
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement('span');
+          star.textContent = i <= Math.round(ratingValue) ? '★' : '☆';
+          star.className = 'text-yellow-400';
+          ratingEl.appendChild(star);
+        }
+        const text = document.createElement('span');
+        text.textContent = ratingValue.toFixed(1);
+        text.className = 'ml-1 text-sm text-gray-600';
+        ratingEl.appendChild(text);
+      } else {
+        ratingEl.textContent = 'No ratings yet';
+        ratingEl.classList.add('text-sm', 'text-gray-600');
+      }
 
       const radiusEl = document.createElement('p');
       radiusEl.className = 'text-sm text-gray-700';
@@ -98,7 +117,7 @@
       portfolioLink.textContent = 'View Portfolio';
 
       linksContainer.append(profileLink, portfolioLink);
-      card.append(name, trade, locationEl, radiusEl, linksContainer);
+      card.append(name, trade, locationEl, ratingEl, radiusEl, linksContainer);
       return card;
     }
 
@@ -111,13 +130,13 @@
       const filtered = allProfiles.filter(p => {
         const nameMatch = !searchTerm || (p.businessName || '').toLowerCase().includes(searchTerm);
         const locationMatch = !locationTerm || (p.location || '').toLowerCase().includes(locationTerm);
-        const tradeMatch = selectedTrades.length === 0 || selectedTrades.includes(p.tradeType);
+        const tradeMatch = selectedTrades.length === 0 || (p.specializations && selectedTrades.some(trade => p.specializations.includes(trade)));
         return nameMatch && locationMatch && tradeMatch;
       });
 
       list.innerHTML = ''; // Clear previous results
       if (filtered.length === 0) {
-        list.innerHTML = '<p>No professionals match your criteria.</p>';
+        list.innerHTML = '<p class="text-gray-700 text-center col-span-full">No professionals match your criteria.</p>';
       } else {
         filtered.forEach(p => list.appendChild(createCard(p)));
       }
@@ -131,7 +150,7 @@
         filterAndRender(); // Initial render
       } catch (error) {
         console.error("Error loading professionals:", error);
-        list.innerHTML = '<p class="text-red-500">Could not load professionals. Please try again later.</p>';
+        list.innerHTML = '<p class="text-red-500 text-center col-span-full">Could not load professionals. Please try again later.</p>';
       }
     }
 
@@ -142,6 +161,12 @@
 
     // Initial load
     loadProfessionals();
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>

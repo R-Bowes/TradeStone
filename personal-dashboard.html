@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Personal Dashboard – TradeStone</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans pb-16">
@@ -23,27 +22,34 @@
     </button>
   </main>
 
-  <!-- Firebase and Auth guard + Logout logic -->
   <script type="module">
+    // Import necessary Firebase modules
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    // Import your centralized Firebase initialization
     import { initFirebase } from './firebase-init.js';
 
+    // Initialize Firebase authentication using your centralized function
     const { auth } = initFirebase();
 
+    // Set up an authentication state change listener
     onAuthStateChanged(auth, user => {
+      // If no user is logged in, redirect to the login page
       if (!user) {
         window.location.href = 'login.html';
       } else {
+        // If a user is logged in, display their email
         document.getElementById('user-email').textContent = user.email;
       }
     });
 
+    // Add event listener for the logout button
     document.getElementById('logout-btn').addEventListener('click', async () => {
+      // Sign out the user
       await signOut(auth);
+      // Redirect to the login page after logout
       window.location.href = 'login.html';
     });
   </script>
-  <!-- Bottom Navigation Bar -->
   <div id="bottom-nav"></div>
   <script>
     fetch('bottom-nav.html')
@@ -51,6 +57,12 @@
       .then(html => {
         document.getElementById('bottom-nav').innerHTML = html;
       });
+  </script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>

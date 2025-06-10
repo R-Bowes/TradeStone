@@ -23,6 +23,8 @@
       </label>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Email</button>
     </form>
+    <div id="success-msg" class="text-green-500"></div>
+    <div id="error-msg" class="text-red-500"></div>
 
     <form id="update-password-form" class="space-y-2">
       <label class="block">New Password
@@ -30,6 +32,8 @@
       </label>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Update Password</button>
     </form>
+    <div id="success-msg" class="text-green-500"></div>
+    <div id="error-msg" class="text-red-500"></div>
 
     <form id="notif-form" class="space-y-2">
       <p class="font-medium">Notifications</p>
@@ -42,8 +46,19 @@
         <span>SMS Updates</span>
       </label>
     </form>
+    <div id="error-msg" class="text-red-500"></div>
 
     <button id="delete-account-btn" class="w-full py-2 bg-red-500 text-white rounded">Delete Account</button>
+
+    <div id="delete-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div class="bg-white p-4 rounded">
+        <p class="mb-4">Delete your account and profile? This cannot be undone.</p>
+        <div class="flex justify-end gap-2">
+          <button id="cancel-delete" class="px-3 py-1 bg-gray-300 rounded">Cancel</button>
+          <button id="confirm-delete" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <div class="text-center mt-6">
@@ -73,25 +88,32 @@
       }
     });
 
+    const errorDiv = document.getElementById('error-msg');
+    const successDiv = document.getElementById('success-msg');
+
     document.getElementById('update-email-form').addEventListener('submit', async e => {
       e.preventDefault();
+      errorDiv.textContent = '';
+      successDiv.textContent = '';
       const newEmail = e.target.newEmail.value;
       try {
         await updateEmail(auth.currentUser, newEmail);
-        alert('Email updated');
+        successDiv.textContent = 'Email updated';
       } catch (err) {
-        alert(err.message);
+        document.getElementById('error-msg').textContent = err.message;
       }
     });
 
     document.getElementById('update-password-form').addEventListener('submit', async e => {
       e.preventDefault();
+      errorDiv.textContent = '';
+      successDiv.textContent = '';
       const newPassword = e.target.newPassword.value;
       try {
         await updatePassword(auth.currentUser, newPassword);
-        alert('Password updated');
+        successDiv.textContent = 'Password updated';
       } catch (err) {
-        alert(err.message);
+        document.getElementById('error-msg').textContent = err.message;
       }
     });
 
@@ -104,17 +126,25 @@
       await updateDoc(doc(db, 'users', auth.currentUser.uid), { notifications: prefs }, { merge: true });
     });
 
-    document.getElementById('delete-account-btn').addEventListener('click', async () => {
+    const modal = document.getElementById('delete-modal');
+    document.getElementById('delete-account-btn').addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+
+    document.getElementById('cancel-delete').addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    document.getElementById('confirm-delete').addEventListener('click', async () => {
       if (!auth.currentUser) return;
-      const confirmation = confirm('Delete your account and profile? This cannot be undone.');
-      if (!confirmation) return;
+      modal.classList.add('hidden');
       try {
         await deleteDoc(doc(db, 'profiles', auth.currentUser.uid));
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);
         window.location.href = 'signup.html';
       } catch (err) {
-        alert(err.message);
+        document.getElementById('error-msg').textContent = err.message;
       }
     });
   </script>

@@ -7,7 +7,7 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 ## Setup
 
 1. Create a Firebase project and copy its configuration.
-2. Edit `firebase-init.js` in the project root and replace the placeholder credentials with your own.
+2. Paste that configuration into `firebase-init.js` in the project root, replacing the sample values.
 3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
 
 ## Usage

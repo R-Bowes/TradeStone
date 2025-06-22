@@ -22,6 +22,7 @@ const docsEl = document.getElementById('contract-documents');
 const questionsEl = document.getElementById('contract-questions');
 const bidForm = document.getElementById('bid-form');
 const watchBtn = document.getElementById('watch-btn');
+const statusEl = document.getElementById('status-msg');
 
 let currentUser = null;
 let isPro = false;
@@ -102,7 +103,7 @@ async function submitBid(e) {
     createdAt: serverTimestamp()
   });
   bidForm.reset();
-  alert('Bid submitted');
+  statusEl.textContent = 'Bid submitted';
 }
 
 async function addToWatchlist() {
@@ -112,6 +113,7 @@ async function addToWatchlist() {
   });
   watchBtn.textContent = 'Added to Watchlist';
   watchBtn.disabled = true;
+  statusEl.textContent = 'Added to Watchlist';
 }
 
 loadContract();

@@ -6,6 +6,7 @@ const { db, auth } = initFirebase();
 let userTrade = null;
 let allContracts = [];
 const list = document.getElementById('contract-list');
+const statusEl = document.getElementById('status-msg');
 
 onAuthStateChanged(auth, async user => {
   if (user) {
@@ -73,9 +74,9 @@ async function applyForContract(id) {
       applicant: user.uid,
       createdAt: serverTimestamp()
     });
-    alert('Application submitted');
+    statusEl.textContent = 'Application submitted';
   } catch (err) {
-    alert(err.message);
+    statusEl.textContent = err.message;
   }
 }
 

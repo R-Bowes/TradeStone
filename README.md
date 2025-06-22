@@ -67,6 +67,7 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. S
 
 - Browse contract opportunities on `contracts.html`. Use the sidebar filters to search by text or location.
 - Professional accounts can create new listings from `post-contract.html`.
+- The posting form mirrors the professional profile screen, with familiar text fields, file uploads, and date pickers.
 - Applications are stored in the `applications` subcollection of each contract document.
 
 ### Messaging

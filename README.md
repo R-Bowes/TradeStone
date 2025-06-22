@@ -109,9 +109,16 @@ profiles. Deleting removes the auth user and related Firestore document.
 ### Sample Data
 
 Need some content to showcase the browse pages? Seed Firestore with example
-profiles, contracts and marketplace items using the provided script. Make sure
-`GOOGLE_APPLICATION_CREDENTIALS` points at your service account as described
-above and then run:
+profiles, contracts and marketplace items using the provided script.
+
+1. Install the script dependencies (requires internet access):
+
+```bash
+npm install
+```
+
+2. Ensure `GOOGLE_APPLICATION_CREDENTIALS` points at your service account as
+described above and then run:
 
 ```bash
 node scripts/seed-sample-data.js

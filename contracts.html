@@ -13,8 +13,9 @@
     loadHeader();
   </script>
 
+  <button id="toggle-filters" class="md:hidden mx-4 mt-4 bg-orange-500 text-white px-4 py-2 rounded">Filters</button>
   <div class="max-w-7xl mx-auto mt-4 p-4 flex flex-col md:flex-row gap-8">
-    <aside class="w-full md:w-64 space-y-4 bg-white rounded-lg shadow p-4 self-start">
+    <aside id="filter-sidebar" class="w-full md:w-64 space-y-4 bg-white rounded-lg shadow p-4 self-start hidden md:block md:max-h-screen md:overflow-y-auto">
       <div>
         <label for="search" class="block mb-1 font-medium">Search</label>
         <input id="search" type="text" class="w-full p-2 border rounded" placeholder="Search contracts" />
@@ -22,6 +23,36 @@
       <div>
         <label for="location-filter" class="block mb-1 font-medium">Location</label>
         <input id="location-filter" type="text" class="w-full p-2 border rounded" placeholder="e.g. London" />
+      </div>
+      <div>
+        <label for="contract-type" class="block mb-1 font-medium">Contract Type</label>
+        <select id="contract-type" class="w-full p-2 border rounded">
+          <option value="">Any</option>
+          <option value="private">Private</option>
+          <option value="government">Government</option>
+        </select>
+      </div>
+      <div>
+        <p class="font-medium mb-2">Trade Category</p>
+        <div class="space-y-1" id="trade-list"></div>
+      </div>
+      <div>
+        <p class="font-medium mb-2">Budget (£)</p>
+        <div class="flex space-x-2">
+          <input id="budget-min" type="number" class="w-1/2 p-2 border rounded" placeholder="Min" />
+          <input id="budget-max" type="number" class="w-1/2 p-2 border rounded" placeholder="Max" />
+        </div>
+      </div>
+      <div>
+        <p class="font-medium mb-2">Date Range</p>
+        <input id="start-date-from" type="date" class="w-full p-2 border rounded mb-1" />
+        <input id="start-date-to" type="date" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label class="block"><input id="verified-only" type="checkbox" class="mr-2" />Verified Only</label>
+      </div>
+      <div>
+        <label class="block"><input id="qualify-only" type="checkbox" class="mr-2" />Only Show Contracts I Qualify For</label>
       </div>
       <button id="apply-filters" class="bg-orange-500 text-white px-4 py-2 rounded w-full">Apply</button>
     </aside>
@@ -32,7 +63,19 @@
   <script type="module" src="./contracts.js"></script>
   <script type="module">
     import { initFirebase } from './firebase-init.js';
+    import { tradeTypes } from './trade-types.js';
     initFirebase();
+    const container = document.getElementById('trade-list');
+    tradeTypes.forEach(t => {
+      const label = document.createElement('label');
+      label.className = 'block';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = t;
+      cb.className = 'trade-checkbox mr-2';
+      label.append(cb, document.createTextNode(t));
+      container.appendChild(label);
+    });
   </script>
   <div id="footer"></div>
   <script>

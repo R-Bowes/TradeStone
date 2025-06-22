@@ -14,15 +14,15 @@ function buildConfig() {
   const cfg = win.firebaseConfig || {};
 
   const config = {
-    apiKey: env.FIREBASE_API_KEY || cfg.apiKey || '<API_KEY>',
-    authDomain: env.FIREBASE_AUTH_DOMAIN || cfg.authDomain || '<AUTH_DOMAIN>',
-    databaseURL: env.FIREBASE_DATABASE_URL || cfg.databaseURL || '<DATABASE_URL>',
-    projectId: env.FIREBASE_PROJECT_ID || cfg.projectId || '<PROJECT_ID>',
-    storageBucket: env.FIREBASE_STORAGE_BUCKET || cfg.storageBucket || '<STORAGE_BUCKET>',
-    messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID || cfg.messagingSenderId || '<MESSAGING_SENDER_ID>',
-    appId: env.FIREBASE_APP_ID || cfg.appId || '<APP_ID>',
-    measurementId: env.FIREBASE_MEASUREMENT_ID || cfg.measurementId || '<MEASUREMENT_ID>',
-    appCheckSiteKey: env.FIREBASE_APPCHECK_SITE_KEY || cfg.appCheckSiteKey || '<APPCHECK_SITE_KEY>'
+    apiKey: env.FIREBASE_API_KEY || cfg.apiKey || 'AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo',
+    authDomain: env.FIREBASE_AUTH_DOMAIN || cfg.authDomain || 'tradestone-efb30.firebaseapp.com',
+    databaseURL: env.FIREBASE_DATABASE_URL || cfg.databaseURL || 'https://tradestone-efb30-default-rtdb.firebaseio.com',
+    projectId: env.FIREBASE_PROJECT_ID || cfg.projectId || 'tradestone-efb30',
+    storageBucket: env.FIREBASE_STORAGE_BUCKET || cfg.storageBucket || 'tradestone-efb30.firebasestorage.app',
+    messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID || cfg.messagingSenderId || '761717818779',
+    appId: env.FIREBASE_APP_ID || cfg.appId || '1:761717818779:web:05287865a076dbfed68d3e',
+    measurementId: env.FIREBASE_MEASUREMENT_ID || cfg.measurementId || 'G-TM9DK5H25J',
+    appCheckSiteKey: env.FIREBASE_APPCHECK_SITE_KEY || cfg.appCheckSiteKey || '060696'
   };
 
   const missing = Object.entries(config)

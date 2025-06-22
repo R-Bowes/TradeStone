@@ -13,5 +13,7 @@ window.firebaseConfig = {
   storageBucket: '<STORAGE_BUCKET>',
   messagingSenderId: '<MESSAGING_SENDER_ID>',
   appId: '<APP_ID>',
-  measurementId: '<MEASUREMENT_ID>'
+  measurementId: '<MEASUREMENT_ID>',
+  // Public reCAPTCHA v3 key for Firebase App Check
+  appCheckSiteKey: '<APPCHECK_SITE_KEY>'
 };

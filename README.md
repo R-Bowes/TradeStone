@@ -11,6 +11,7 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
    - Set variables like `FIREBASE_API_KEY` and `FIREBASE_AUTH_DOMAIN` when bundling/serving the app.
    - Or create `firebase-config.js` in the project root based on `firebase-config.example.js` and include it before `firebase-init.js` in your HTML.
    - After copying, edit `firebase-config.js` and replace every `<PLACEHOLDER>` with the actual values from your Firebase project.
+   - When any values are missing, `firebase-init.js` now throws an error listing the fields that still need configuration.
 3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
 
 ## Firebase App Check
@@ -89,15 +90,17 @@ SDK and requires a service account JSON key.
    ```
 3. Create the demo users:
    ```bash
-   node scripts/manage-test-users.js create
-   ```
-   Two accounts will be created:
-   - `demo-personal@example.com` (password `demopass`)
-   - `demo-professional@example.com` (password `demopass`)
+  node scripts/manage-test-users.js create
+  ```
+  Two accounts will be created:
+  - `demo-personal@example.com` (password `demopass`)
+  - `demo-professional@example.com` (password `demopass`)
+  When `DEMO_MODE` is enabled (the default), these credentials are shown on the
+  login pages so you can sign in immediately.
 4. When finished testing, remove them with:
-   ```bash
-   node scripts/manage-test-users.js delete
-   ```
+  ```bash
+  node scripts/manage-test-users.js delete
+  ```
 
 The script adds the appropriate documents to the `users` collection so the demo
 accounts behave like normal ones and can post in the marketplace or create

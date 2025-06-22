@@ -46,7 +46,18 @@ let services;
  */
 export function initFirebase() {
   if (!services) {
-    const cfg = buildConfig();
+    let cfg;
+    try {
+      cfg = buildConfig();
+    } catch (err) {
+      if (typeof document !== 'undefined') {
+        const el = document.createElement('div');
+        el.textContent = err.message;
+        el.style.cssText = 'background:#fee;color:#b00;border:1px solid #f00;margin:1em;padding:.5em';
+        document.body.prepend(el);
+      }
+      throw err;
+    }
     const app = initializeApp(cfg);
     services = {
       app,

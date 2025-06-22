@@ -8,6 +8,10 @@ let userTrade = null;
 let allContracts = [];
 const list = document.getElementById('contract-list');
 const statusEl = document.getElementById('status-msg');
+const DEMO_CONTRACTS = [
+  { id: 'demo1', title: 'Kitchen Renovation', budget: 2500, location: 'Manchester', description: 'Full refurb' },
+  { id: 'demo2', title: 'Office Wiring', budget: 1200, location: 'Birmingham', description: 'Install new wiring' }
+];
 
 onAuthStateChanged(auth, async user => {
   if (user) {
@@ -119,6 +123,9 @@ async function filterAndRender() {
   try {
     const snap = await getDocs(q);
     allContracts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (DEMO_MODE && allContracts.length === 0) {
+      allContracts = DEMO_CONTRACTS;
+    }
   } catch (err) {
     console.error('Error loading contracts:', err);
     list.innerHTML = '<p class="text-red-500 text-center col-span-full">Could not load contracts.</p>';

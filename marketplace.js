@@ -5,6 +5,10 @@ import { DEMO_MODE, showDemo } from "./demo-placeholder.js";
 const { db } = initFirebase();
 let allItems = [];
 const list = document.getElementById('item-list');
+const DEMO_ITEMS = [
+  { id: 'demo1', title: 'Used Hammer', price: 10, condition: 'Used', location: 'Leeds', images: [] },
+  { id: 'demo2', title: 'Concrete Mixer', price: 150, condition: 'New', location: 'Liverpool', images: [] }
+];
 
 function createCard(item) {
   const card = document.createElement('div');
@@ -81,6 +85,9 @@ async function loadItems() {
   try {
     const snap = await getDocs(collection(db, 'marketplaceItems'));
     allItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (DEMO_MODE && allItems.length === 0) {
+      allItems = DEMO_ITEMS;
+    }
     filterAndRender();
   } catch (err) {
     console.error('Error loading items:', err);

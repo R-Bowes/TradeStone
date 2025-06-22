@@ -55,6 +55,10 @@
     const { db } = initFirebase(); // Destructure db from the initialized Firebase app
     let allProfiles = [];
     const list = document.getElementById('pro-list');
+    const DEMO_PROFILES = [
+      { id: 'demo1', businessName: 'Demo Plumbing Co.', tradeType: 'Plumber', location: 'London', avgRating: 4.8 },
+      { id: 'demo2', businessName: 'Mock Electricians', tradeType: 'Electrician', location: 'Bristol', avgRating: 4.5 }
+    ];
 
     // Creates a single profile card element
     function createCard(profileData) {
@@ -164,6 +168,9 @@
       try {
         const querySnapshot = await getDocs(collection(db, 'profiles'));
         allProfiles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (DEMO_MODE && allProfiles.length === 0) {
+          allProfiles = DEMO_PROFILES;
+        }
         filterAndRender(); // Initial render
       } catch (error) {
         console.error("Error loading professionals:", error);

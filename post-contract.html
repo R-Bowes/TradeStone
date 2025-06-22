@@ -10,12 +10,20 @@
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
+    import { tradeTypes } from './trade-types.js';
     loadHeader();
+    const trades = document.getElementById('requiredTrades');
+    tradeTypes.forEach(t => {
+      const option = document.createElement('option');
+      option.value = t;
+      option.textContent = t;
+      trades.appendChild(option);
+    });
   </script>
 
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h2 class="text-2xl font-bold mb-4 text-center">Post Contract</h2>
-    <form id="contract-form" class="space-y-4">
+    <form id="contract-form" class="space-y-4" enctype="multipart/form-data">
       <div>
         <label for="title" class="block mb-1">Title</label>
         <input id="title" name="title" type="text" required class="w-full p-2 border rounded" />
@@ -27,6 +35,34 @@
       <div>
         <label for="budget" class="block mb-1">Budget (£)</label>
         <input id="budget" name="budget" type="number" step="0.01" min="0" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="contractType" class="block mb-1">Contract Type</label>
+        <select id="contractType" name="contractType" class="w-full p-2 border rounded">
+          <option value="Fixed Price">Fixed Price</option>
+          <option value="Hourly">Hourly</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="requiredTrades" class="block mb-1">Required Trades</label>
+        <select id="requiredTrades" name="requiredTrades" multiple class="w-full p-2 border rounded h-32 overflow-y-auto"></select>
+      </div>
+      <div>
+        <label for="startDate" class="block mb-1">Start Date</label>
+        <input id="startDate" name="startDate" type="date" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="dueDate" class="block mb-1">Due Date</label>
+        <input id="dueDate" name="dueDate" type="date" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="bidDeadline" class="block mb-1">Bid Deadline</label>
+        <input id="bidDeadline" name="bidDeadline" type="date" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label for="attachments" class="block mb-1">Uploads</label>
+        <input id="attachments" name="attachments" type="file" multiple class="w-full" />
       </div>
       <div>
         <label for="location" class="block mb-1">Location</label>
@@ -41,8 +77,9 @@
     import { initFirebase } from './firebase-init.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
     import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
 
-    const { auth, db } = initFirebase();
+    const { auth, db, storage } = initFirebase();
     const form = document.getElementById('contract-form');
     const errorEl = document.getElementById('error-msg');
 
@@ -67,6 +104,11 @@
           title: form.title.value.trim(),
           description: form.description.value.trim(),
           budget: parseFloat(form.budget.value) || null,
+          contractType: form.contractType.value,
+          requiredTrades: Array.from(form.requiredTrades.selectedOptions).map(o => o.value),
+          startDate: form.startDate.value || null,
+          dueDate: form.dueDate.value || null,
+          bidDeadline: form.bidDeadline.value || null,
           location: form.location.value.trim(),
           postedBy: user.uid,
           createdAt: serverTimestamp()
@@ -75,6 +117,17 @@
         if (!data.title || !data.description || !data.location) {
           errorEl.textContent = 'Please fill in all required fields.';
           return;
+        }
+
+        const files = Array.from(form.attachments.files);
+        if (files.length) {
+          const urls = [];
+          for (const file of files) {
+            const fileRef = ref(storage, `contracts/${user.uid}/${Date.now()}-${file.name}`);
+            await uploadBytes(fileRef, file);
+            urls.push(await getDownloadURL(fileRef));
+          }
+          data.attachments = urls;
         }
 
         await addDoc(collection(db, 'contracts'), data);

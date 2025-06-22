@@ -10,7 +10,10 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
 2. Provide the credentials using environment variables or a config file:
    - Set variables like `FIREBASE_API_KEY` and `FIREBASE_AUTH_DOMAIN` when bundling/serving the app.
    - Or create `firebase-config.js` in the project root based on `firebase-config.example.js` and include it before `firebase-init.js` in your HTML.
-   - After copying, edit `firebase-config.js` and replace every `<PLACEHOLDER>` with the actual values from your Firebase project.
+     `firebase-config.js` is listed in `.gitignore` so you can store your real
+     credentials locally without committing them.
+   - After copying, edit `firebase-config.js` and replace every `<PLACEHOLDER>`
+     with the actual values from your Firebase project.
    - When any values are missing, `firebase-init.js` now throws an error listing the fields that still need configuration.
    - The same error text is also inserted at the top of the page so you immediately know setup isn't complete.
 3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.

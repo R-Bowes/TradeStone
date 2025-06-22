@@ -32,6 +32,12 @@
       </button>
     </form>
     <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
+    <div id="demo-accounts" class="mt-4 text-sm bg-orange-50 border border-orange-300 p-2 rounded hidden">
+      <p class="font-semibold">Demo accounts</p>
+      <p>Personal: <code>demo-personal@example.com</code></p>
+      <p>Professional: <code>demo-professional@example.com</code></p>
+      <p>Password: <code>demopass</code></p>
+    </div>
     <p class="mt-4 text-center text-sm">
       Don’t have an account?
       <a href="professional-signup.html" class="text-orange-500 font-medium">Sign up</a>
@@ -116,6 +122,13 @@
         errorEl.textContent = err.message;
       }
     });
+  </script>
+
+  <script type="module">
+    import { DEMO_MODE } from './demo-placeholder.js';
+    if (DEMO_MODE) {
+      document.getElementById('demo-accounts').classList.remove('hidden');
+    }
   </script>
 
   <div id="footer"></div>

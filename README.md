@@ -90,15 +90,17 @@ SDK and requires a service account JSON key.
    ```
 3. Create the demo users:
    ```bash
-   node scripts/manage-test-users.js create
-   ```
-   Two accounts will be created:
-   - `demo-personal@example.com` (password `demopass`)
-   - `demo-professional@example.com` (password `demopass`)
+  node scripts/manage-test-users.js create
+  ```
+  Two accounts will be created:
+  - `demo-personal@example.com` (password `demopass`)
+  - `demo-professional@example.com` (password `demopass`)
+  When `DEMO_MODE` is enabled (the default), these credentials are shown on the
+  login pages so you can sign in immediately.
 4. When finished testing, remove them with:
-   ```bash
-   node scripts/manage-test-users.js delete
-   ```
+  ```bash
+  node scripts/manage-test-users.js delete
+  ```
 
 The script adds the appropriate documents to the `users` collection so the demo
 accounts behave like normal ones and can post in the marketplace or create

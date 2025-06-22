@@ -71,6 +71,7 @@
       <div id="error-msg" class="text-red-500 text-center"></div>
       <button type="submit" class="w-full py-2 bg-orange-500 text-white rounded">Post Contract</button>
     </form>
+    <div id="status-msg" class="text-red-500 mt-2 text-center"></div>
   </main>
 
   <script type="module">
@@ -82,6 +83,7 @@
     const { auth, db, storage } = initFirebase();
     const form = document.getElementById('contract-form');
     const errorEl = document.getElementById('error-msg');
+    const statusEl = document.getElementById('status-msg');
 
     onAuthStateChanged(auth, async user => {
       if (!user) {
@@ -132,7 +134,7 @@
 
         await addDoc(collection(db, 'contracts'), data);
         form.reset();
-        alert('Contract posted!');
+        statusEl.textContent = 'Contract posted!';
       });
     });
   </script>

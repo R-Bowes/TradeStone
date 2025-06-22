@@ -45,9 +45,12 @@ onAuthStateChanged(auth, user => {
 function loadConversations(uid) {
   const q = query(collection(db, 'conversations'), where('participants', 'array-contains', uid));
   onSnapshot(q, snap => {
-    convListEl.innerHTML = '';
+    convListEl.textContent = '';
     if (snap.empty) {
-      convListEl.innerHTML = '<p class="text-gray-700">No conversations.</p>';
+      const p = document.createElement('p');
+      p.className = 'text-gray-700';
+      p.textContent = 'No conversations.';
+      convListEl.appendChild(p);
       return;
     }
     snap.forEach(doc => {
@@ -63,16 +66,19 @@ function loadConversations(uid) {
 
 function selectConversation(id) {
   currentConvId = id;
-  messagesEl.innerHTML = '';
+  messagesEl.textContent = '';
   if (unsubMessages) unsubMessages();
   const q = query(collection(db, 'conversations', id, 'messages'), orderBy('createdAt'));
   unsubMessages = onSnapshot(q, snap => {
-    messagesEl.innerHTML = '';
+    messagesEl.textContent = '';
     snap.forEach(doc => {
       const m = doc.data();
       const div = document.createElement('div');
       div.className = m.sender === auth.currentUser.uid ? 'text-right' : 'text-left';
-      div.innerHTML = `<span class="inline-block bg-gray-100 rounded px-2 py-1 my-1">${m.text}</span>`;
+      const span = document.createElement('span');
+      span.className = 'inline-block bg-gray-100 rounded px-2 py-1 my-1';
+      span.textContent = m.text;
+      div.appendChild(span);
       messagesEl.appendChild(div);
     });
     messagesEl.scrollTop = messagesEl.scrollHeight;

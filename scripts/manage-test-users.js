@@ -1,4 +1,4 @@
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 const action = process.argv[2];
 if (!action || !['create', 'delete'].includes(action)) {
@@ -52,10 +52,8 @@ async function deleteUsers() {
   }
 }
 
-(async () => {
-  if (action === 'create') {
-    await createUsers();
-  } else {
-    await deleteUsers();
-  }
-})();
+if (action === 'create') {
+  await createUsers();
+} else {
+  await deleteUsers();
+}

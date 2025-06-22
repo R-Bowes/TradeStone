@@ -7,6 +7,10 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+function generateCompanyId() {
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
 const profiles = [
   {
     businessName: 'Ace Builders',
@@ -15,6 +19,7 @@ const profiles = [
     travelRadius: 25,
     description: 'We build quality homes.',
     avgRating: 4.7,
+    companyId: generateCompanyId(),
   },
   {
     businessName: 'Bright Sparks Electrical',
@@ -23,6 +28,7 @@ const profiles = [
     travelRadius: 20,
     description: 'Certified electricians for residential and commercial jobs.',
     avgRating: 4.9,
+    companyId: generateCompanyId(),
   },
   {
     businessName: 'Pipe Pros',
@@ -31,6 +37,7 @@ const profiles = [
     travelRadius: 15,
     description: 'Emergency plumbing and heating services.',
     avgRating: 4.5,
+    companyId: generateCompanyId(),
   }
 ];
 

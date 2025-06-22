@@ -101,3 +101,18 @@ SDK and requires a service account JSON key.
 The script adds the appropriate documents to the `users` collection so the demo
 accounts behave like normal ones and can post in the marketplace or create
 profiles. Deleting removes the auth user and related Firestore document.
+
+### Sample Data
+
+Need some content to showcase the browse pages? Seed Firestore with example
+profiles, contracts and marketplace items using the provided script. Make sure
+`GOOGLE_APPLICATION_CREDENTIALS` points at your service account as described
+above and then run:
+
+```bash
+node scripts/seed-sample-data.js
+```
+
+This will create a handful of fake professionals, contract listings and items so
+the `Browse Professionals`, `Contracts` and `Marketplace` pages display sample
+results.

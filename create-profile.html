@@ -92,6 +92,11 @@
       }
 
       const form = document.getElementById('profile-form');
+
+      function generateCompanyId() {
+        return Math.floor(10000000 + Math.random() * 90000000).toString();
+      }
+
       // Add a submit event listener to the form
       form.addEventListener('submit', async e => {
         e.preventDefault(); // Prevent default form submission
@@ -103,6 +108,7 @@
           tradeType: form.tradeType.value,
           location: form.location.value,
           travelRadius: form.travelRadius.value,
+          companyId: generateCompanyId(),
           social: { // Collect social media links
             facebook: form.facebook.value,
             instagram: form.instagram.value,

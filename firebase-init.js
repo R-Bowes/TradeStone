@@ -13,7 +13,7 @@ function buildConfig() {
   const win = (typeof window !== 'undefined' ? window : {});
   const cfg = win.firebaseConfig || {};
 
-  return {
+  const config = {
     apiKey: env.FIREBASE_API_KEY || cfg.apiKey || '<API_KEY>',
     authDomain: env.FIREBASE_AUTH_DOMAIN || cfg.authDomain || '<AUTH_DOMAIN>',
     databaseURL: env.FIREBASE_DATABASE_URL || cfg.databaseURL || '<DATABASE_URL>',
@@ -24,6 +24,18 @@ function buildConfig() {
     measurementId: env.FIREBASE_MEASUREMENT_ID || cfg.measurementId || '<MEASUREMENT_ID>',
     appCheckSiteKey: env.FIREBASE_APPCHECK_SITE_KEY || cfg.appCheckSiteKey || '<APPCHECK_SITE_KEY>'
   };
+
+  const missing = Object.entries(config)
+    .filter(([, v]) => /^<.*>$/.test(v))
+    .map(([k]) => k);
+
+  if (missing.length) {
+    const msg =
+      'Missing Firebase configuration. Provide values for: ' + missing.join(', ');
+    throw new Error(msg);
+  }
+
+  return config;
 }
 
 let services;

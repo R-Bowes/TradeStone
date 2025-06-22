@@ -1,0 +1,117 @@
+import { initFirebase } from './firebase-init.js';
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  addDoc,
+  setDoc,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+
+const { db, auth } = initFirebase();
+const params = new URLSearchParams(window.location.search);
+const contractId = params.get('id');
+
+const titleEl = document.getElementById('contract-title');
+const descEl = document.getElementById('contract-description');
+const budgetEl = document.getElementById('contract-budget');
+const locationEl = document.getElementById('contract-location');
+const docsEl = document.getElementById('contract-documents');
+const questionsEl = document.getElementById('contract-questions');
+const bidForm = document.getElementById('bid-form');
+const watchBtn = document.getElementById('watch-btn');
+
+let currentUser = null;
+let isPro = false;
+
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  if (user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists() && snap.data().accountType === 'professional') {
+      isPro = true;
+      bidForm.classList.remove('hidden');
+      watchBtn.classList.remove('hidden');
+      bidForm.addEventListener('submit', submitBid);
+      watchBtn.addEventListener('click', addToWatchlist);
+    }
+  }
+});
+
+async function loadContract() {
+  const snap = await getDoc(doc(db, 'contracts', contractId));
+  if (!snap.exists()) {
+    titleEl.textContent = 'Contract not found';
+    return;
+  }
+  const data = snap.data();
+  titleEl.textContent = data.title || 'Untitled';
+  descEl.textContent = data.description || '';
+  budgetEl.textContent = data.budget ? `Budget: £${Number(data.budget).toFixed(2)}` : '';
+  locationEl.textContent = data.location || '';
+  loadDocuments();
+  loadQuestions();
+}
+
+async function loadDocuments() {
+  docsEl.innerHTML = '<h3 class="font-semibold mb-2">Documents</h3>';
+  const snap = await getDocs(collection(db, 'contracts', contractId, 'documents'));
+  if (snap.empty) {
+    docsEl.innerHTML += '<p>No documents.</p>';
+    return;
+  }
+  const list = document.createElement('ul');
+  snap.forEach(d => {
+    const li = document.createElement('li');
+    const link = document.createElement('a');
+    const info = d.data();
+    link.href = info.url || '#';
+    link.textContent = info.name || 'Document';
+    link.className = 'text-orange-500 hover:underline';
+    li.appendChild(link);
+    list.appendChild(li);
+  });
+  docsEl.appendChild(list);
+}
+
+async function loadQuestions() {
+  questionsEl.innerHTML = '<h3 class="font-semibold mb-2">Questions</h3>';
+  const snap = await getDocs(collection(db, 'contracts', contractId, 'questions'));
+  if (snap.empty) {
+    questionsEl.innerHTML += '<p>No questions.</p>';
+    return;
+  }
+  const list = document.createElement('ul');
+  snap.forEach(d => {
+    const li = document.createElement('li');
+    li.textContent = d.data().text || '';
+    list.appendChild(li);
+  });
+  questionsEl.appendChild(list);
+}
+
+async function submitBid(e) {
+  e.preventDefault();
+  if (!currentUser || !isPro) return;
+  await addDoc(collection(db, 'contracts', contractId, 'bids'), {
+    bidder: currentUser.uid,
+    amount: parseFloat(document.getElementById('bid-amount').value) || 0,
+    message: document.getElementById('bid-message').value.trim(),
+    createdAt: serverTimestamp()
+  });
+  bidForm.reset();
+  alert('Bid submitted');
+}
+
+async function addToWatchlist() {
+  if (!currentUser || !isPro) return;
+  await setDoc(doc(db, 'users', currentUser.uid, 'watchlist', contractId), {
+    addedAt: serverTimestamp()
+  });
+  watchBtn.textContent = 'Added to Watchlist';
+  watchBtn.disabled = true;
+}
+
+loadContract();

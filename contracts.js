@@ -34,6 +34,12 @@ function createCard(contract) {
     card.appendChild(bud);
   }
 
+  const view = document.createElement('a');
+  view.href = `contract-detail.html?id=${contract.id}`;
+  view.textContent = 'View Details';
+  view.className = 'text-orange-500 hover:underline';
+  card.appendChild(view);
+
   const btn = document.createElement('button');
   btn.textContent = 'Apply';
   btn.className = 'mt-auto bg-orange-500 text-white px-4 py-1 rounded';

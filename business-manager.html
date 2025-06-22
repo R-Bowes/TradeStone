@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Manager – TradeStone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+  <div id="header"></div>
+  <script type="module">
+    import { loadHeader } from './loadHeader.js';
+    loadHeader();
+  </script>
+  <main class="max-w-2xl mx-auto mt-12 p-4 bg-white rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-4 text-center">Business Manager</h1>
+
+    <div id="tabs" class="flex space-x-4 mb-4">
+      <button data-tab="team" class="tab-btn font-medium">Team</button>
+      <button data-tab="schedule" class="tab-btn font-medium">Schedule</button>
+      <button data-tab="invoices" class="tab-btn font-medium">Invoices</button>
+      <button data-tab="projects" class="tab-btn font-medium">Projects</button>
+      <button data-tab="messages" class="tab-btn font-medium">Messages</button>
+    </div>
+
+    <section id="team" class="tab-section hidden">
+      <form id="team-form" class="space-y-2 mb-4">
+        <input id="member-name" type="text" placeholder="Name" class="w-full p-2 border rounded" required />
+        <input id="member-role" type="text" placeholder="Role" class="w-full p-2 border rounded" required />
+        <button type="submit" class="px-3 py-1 bg-orange-500 text-white rounded">Add Member</button>
+      </form>
+      <ul id="team-list" class="space-y-2"></ul>
+    </section>
+
+    <section id="schedule" class="tab-section hidden">
+      <form id="schedule-form" class="space-y-2 mb-4">
+        <input id="schedule-date" type="date" class="w-full p-2 border rounded" required />
+        <input id="schedule-task" type="text" placeholder="Task" class="w-full p-2 border rounded" required />
+        <button type="submit" class="px-3 py-1 bg-orange-500 text-white rounded">Add</button>
+      </form>
+      <ul id="schedule-list" class="space-y-2"></ul>
+    </section>
+
+    <section id="invoices" class="tab-section hidden">
+      <form id="invoice-form" class="space-y-2 mb-4">
+        <input id="invoice-client" type="text" placeholder="Client" class="w-full p-2 border rounded" required />
+        <input id="invoice-amount" type="number" placeholder="Amount" class="w-full p-2 border rounded" required />
+        <button type="submit" class="px-3 py-1 bg-orange-500 text-white rounded">Add Invoice</button>
+      </form>
+      <ul id="invoice-list" class="space-y-2"></ul>
+    </section>
+
+    <section id="projects" class="tab-section hidden">
+      <form id="project-form" class="space-y-2 mb-4">
+        <input id="project-name" type="text" placeholder="Project name" class="w-full p-2 border rounded" required />
+        <input id="project-status" type="text" placeholder="Status" class="w-full p-2 border rounded" required />
+        <button type="submit" class="px-3 py-1 bg-orange-500 text-white rounded">Add Project</button>
+      </form>
+      <ul id="project-list" class="space-y-2"></ul>
+    </section>
+
+    <section id="messages" class="tab-section hidden">
+      <p class="mb-2">Open the full <a href="messages.html" class="text-orange-500 underline">messages</a> page to view and send messages.</p>
+    </section>
+
+  </main>
+  <script src="firebase-config.js"></script>
+  <script type="module" src="./business-manager.js"></script>
+  <div id="footer"></div>
+  <script>
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
+</body>
+</html>

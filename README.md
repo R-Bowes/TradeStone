@@ -81,6 +81,11 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. S
 - Visit **Messages** from the burger menu to chat with other users.
 - Conversations appear on the left. Select one to view and send messages in real time.
 
+### Business Manager
+
+- Professional accounts can manage their business from `business-manager.html`.
+- Add team members, track schedules, record invoices and projects, and jump straight to your messages.
+
 ### Test Accounts
 
 A small utility script is included to spin up demo users so you can showcase the

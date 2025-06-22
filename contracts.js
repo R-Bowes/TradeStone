@@ -1,6 +1,7 @@
 import { initFirebase } from './firebase-init.js';
 import { collection, getDocs, addDoc, serverTimestamp, query, where, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+import { DEMO_MODE, showDemo } from "./demo-placeholder.js";
 
 const { db, auth } = initFirebase();
 let userTrade = null;
@@ -60,6 +61,18 @@ function createCard(contract) {
   btn.addEventListener('click', () => applyForContract(contract.id));
   card.appendChild(btn);
 
+  if (DEMO_MODE) {
+    const demoLink = document.createElement('a');
+    demoLink.href = '#';
+    demoLink.className = 'text-orange-500 hover:underline';
+    demoLink.textContent = 'Demo Info';
+    demoLink.addEventListener('click', e => {
+      e.preventDefault();
+      const html = `<h2 class="text-lg font-bold mb-2">${contract.title}</h2><p>Budget: £${Number(contract.budget || 0).toFixed(2)}</p><p>Location: ${contract.location || 'various locations'}.</p>`;
+      showDemo(html);
+    });
+    card.appendChild(demoLink);
+  }
   return card;
 }
 

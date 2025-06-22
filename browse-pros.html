@@ -50,6 +50,7 @@
   <script type="module">
     import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
     import { initFirebase } from './firebase-init.js'; // Use the centralized Firebase init file
+    import { DEMO_MODE, showDemo } from "./demo-placeholder.js";
 
     const { db } = initFirebase(); // Destructure db from the initialized Firebase app
     let allProfiles = [];
@@ -121,6 +122,18 @@
       portfolioLink.textContent = 'View Portfolio';
 
       linksContainer.append(profileLink, portfolioLink);
+      if (DEMO_MODE) {
+        const demoLink = document.createElement('a');
+        demoLink.href = '#';
+        demoLink.className = 'text-orange-500 block hover:underline';
+        demoLink.textContent = 'Demo Info';
+        demoLink.addEventListener('click', e => {
+          e.preventDefault();
+          const html = `<h2 class="text-lg font-bold mb-2">${profileData.businessName || 'Demo Professional'}</h2><p>Latest review: "Excellent work!"</p><p>Worked previously in ${profileData.location || 'various locations'}.</p>`;
+          showDemo(html);
+        });
+        linksContainer.appendChild(demoLink);
+      }
       card.append(name, trade, locationEl, ratingEl, radiusEl, linksContainer);
       return card;
     }

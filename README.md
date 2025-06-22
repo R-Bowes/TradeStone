@@ -49,6 +49,12 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. S
   - `postedBy` – UID of the user who created the listing
   - `createdAt` – Firestore timestamp
 
+### Contracts
+
+- Browse contract opportunities on `contracts.html`. Use the sidebar filters to search by text or location.
+- Professional accounts can create new listings from `post-contract.html`.
+- Applications are stored in the `applications` subcollection of each contract document.
+
 ### Messaging
 
 - Visit **Messages** from the burger menu to chat with other users.

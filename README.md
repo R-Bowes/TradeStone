@@ -12,6 +12,25 @@ Firebase powers authentication, Firestore storage, and hosting of profile images
    - Or create `firebase-config.js` in the project root based on `firebase-config.example.js` and include it before `firebase-init.js` in your HTML.
 3. Serve the static files using any web server (for example `npx serve .`) or open the HTML files directly in the browser.
 
+## Firebase App Check
+
+Protect your backend resources by enabling App Check with reCAPTCHA&nbsp;v3.
+
+1. In the Firebase console open **App Check** and register your web app using the **reCAPTCHA v3** provider.
+2. Copy the generated site key and set it as `appCheckSiteKey` via environment variables or in `firebase-config.js`.
+3. `firebase-init.js` calls `initializeAppCheck` with this key so tokens are automatically refreshed when running in the browser.
+
+See the [Firebase documentation](https://firebase.google.com/docs/app-check/web/recaptcha-provider) for full instructions.
+
+## Production Security Rules
+
+Sample notes mention temporary open rules for Firestore and Realtime Database. Before deploying, write restrictive rules that only allow the actions your app requires.
+
+- Follow the [Firestore Security Rules guide](https://firebase.google.com/docs/firestore/security/get-started) to define document-level permissions and validation.
+- Use the [Realtime Database Rules guide](https://firebase.google.com/docs/database/security) to secure any realtime chat data.
+
+Apply the updated rules in the Firebase console or with the Firebase CLI.
+
 ## Usage
 
 - Sign up via `signup.html` and choose either a professional or personal account.

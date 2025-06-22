@@ -7,14 +7,14 @@
  * `firebase-init.js`.
  */
 window.firebaseConfig = {
-  apiKey: '<API_KEY>',
-  authDomain: '<AUTH_DOMAIN>',
-  databaseURL: '<DATABASE_URL>',
-  projectId: '<PROJECT_ID>',
-  storageBucket: '<STORAGE_BUCKET>',
-  messagingSenderId: '<MESSAGING_SENDER_ID>',
-  appId: '<APP_ID>',
-  measurementId: '<MEASUREMENT_ID>',
+  apiKey: "AIzaSyAjA_fDLdSbIW6eRFDe4oKpfdB8O4Ix4zo",
+  authDomain: "tradestone-efb30.firebaseapp.com",
+  databaseURL: "https://tradestone-efb30-default-rtdb.firebaseio.com",
+  projectId: "tradestone-efb30",
+  storageBucket: "tradestone-efb30.firebasestorage.app",
+  messagingSenderId: "761717818779",
+  appId: "1:761717818779:web:05287865a076dbfed68d3e",
+  measurementId: "G-TM9DK5H25J"
   // Public reCAPTCHA v3 key for Firebase App Check
   appCheckSiteKey: '<APPCHECK_SITE_KEY>'
 };

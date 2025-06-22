@@ -1,5 +1,6 @@
 import { initFirebase } from './firebase-init.js';
 import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+import { DEMO_MODE, showDemo } from "./demo-placeholder.js";
 
 const { db } = initFirebase();
 let allItems = [];
@@ -39,6 +40,18 @@ function createCard(item) {
     card.appendChild(locationEl);
   }
 
+  if (DEMO_MODE) {
+    const demoLink = document.createElement('a');
+    demoLink.href = '#';
+    demoLink.className = 'text-orange-500 block hover:underline';
+    demoLink.textContent = 'Demo Info';
+    demoLink.addEventListener('click', e => {
+      e.preventDefault();
+      const html = `<h2 class="text-lg font-bold mb-2">${item.title}</h2><p>Condition: ${item.condition}</p><p>Located at ${item.location || 'various locations'}.</p>`;
+      showDemo(html);
+    });
+    card.appendChild(demoLink);
+  }
   return card;
 }
 

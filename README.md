@@ -53,3 +53,30 @@ All pages import `firebase-init.js` which centralizes Firebase initialization. S
 
 - Visit **Messages** from the burger menu to chat with other users.
 - Conversations appear on the left. Select one to view and send messages in real time.
+
+### Test Accounts
+
+A small utility script is included to spin up demo users so you can showcase the
+site without cluttering your real database. The script uses the Firebase Admin
+SDK and requires a service account JSON key.
+
+1. Install dependencies using `npm install` (requires internet access).
+2. Export the path to your service account key:
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccountKey.json
+   ```
+3. Create the demo users:
+   ```bash
+   node scripts/manage-test-users.js create
+   ```
+   Two accounts will be created:
+   - `demo-personal@example.com` (password `demopass`)
+   - `demo-professional@example.com` (password `demopass`)
+4. When finished testing, remove them with:
+   ```bash
+   node scripts/manage-test-users.js delete
+   ```
+
+The script adds the appropriate documents to the `users` collection so the demo
+accounts behave like normal ones and can post in the marketplace or create
+profiles. Deleting removes the auth user and related Firestore document.

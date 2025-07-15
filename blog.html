@@ -15,6 +15,9 @@
 
   <main class="max-w-2xl mx-auto mt-12 p-4 bg-white rounded-xl shadow">
     <h2 class="text-2xl font-bold mb-4">Blog</h2>
+    <div class="mb-4">
+      <input id="search" type="text" class="w-full p-2 border rounded" placeholder="Search posts" />
+    </div>
     <form id="post-form" class="space-y-2 mb-6 hidden">
       <input id="title" type="text" required placeholder="Title" class="w-full p-2 border rounded">
       <textarea id="content" required placeholder="Share something..." class="w-full p-2 border rounded"></textarea>
@@ -32,6 +35,8 @@
     const { auth } = initFirebase();
     const form = document.getElementById('post-form');
     const list = document.getElementById('posts-list');
+    const searchInput = document.getElementById('search');
+    let allPosts = [];
 
     onAuthStateChanged(auth, user => {
       if (user) {
@@ -47,12 +52,25 @@
 
     async function loadPosts() {
       list.innerHTML = '';
-      const posts = await getPosts();
-      if (!posts.length) {
+      allPosts = await getPosts();
+      if (!allPosts.length) {
         list.innerHTML = '<p class="text-center">No posts yet.</p>';
         return;
       }
-      for (const post of posts) {
+      filterAndRender();
+    }
+
+    function filterAndRender() {
+      const search = searchInput.value.toLowerCase();
+      const filtered = allPosts.filter(p =>
+        p.title.toLowerCase().includes(search) ||
+        p.content.toLowerCase().includes(search)
+      );
+      if (!filtered.length) {
+        list.innerHTML = '<p class="text-center">No posts found.</p>';
+        return;
+      }
+      for (const post of filtered) {
         const div = document.createElement('div');
         div.className = 'border-b pb-4';
 
@@ -80,6 +98,7 @@
       }
     }
 
+    searchInput.addEventListener('input', filterAndRender);
     loadPosts();
   </script>
   <div id="footer"></div>

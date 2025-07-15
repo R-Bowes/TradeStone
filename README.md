@@ -65,6 +65,7 @@ Apply the updated rules in the Firebase console or with the Firebase CLI.
 - When logged in, a form appears allowing you to publish a new post.
 - Click a post title to view it on its own page. There you can comment and hit the **Hammer** button to like the post.
 - Posting and commenting are restricted to authenticated users.
+- Use the search bar to filter posts by title or content.
 
 All pages import `firebase-init.js` which centralizes Firebase initialization. Supply credentials via environment variables or `firebase-config.js` and the app will use them across every page.
 

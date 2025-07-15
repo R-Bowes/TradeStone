@@ -137,3 +137,13 @@ node scripts/seed-sample-data.js
 This will create a handful of fake professionals, contract listings and items so
 the `Browse Professionals`, `Contracts` and `Marketplace` pages display sample
 results.
+
+Need some demo discussions on the blog as well? Seed a few example posts and
+comments with:
+
+```bash
+node scripts/seed-blog-posts.js
+```
+
+Running the script populates the `posts` collection and nested `comments`
+subcollections so the Blog pages show content right away.

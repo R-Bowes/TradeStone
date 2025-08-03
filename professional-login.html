@@ -31,7 +31,7 @@
         Log In
       </button>
     </form>
-    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
+    <error-message id="error-msg"></error-message>
     <div id="demo-accounts" class="mt-4 text-sm bg-orange-50 border border-orange-300 p-2 rounded hidden">
       <p class="font-semibold">Demo accounts</p>
       <p>Personal: <code>demo-personal@example.com</code></p>
@@ -62,6 +62,7 @@
 
   <script src="firebase-config.js"></script>
   <script type="module">
+    import './error-message.js';
     // Import necessary Firebase modules
     import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
@@ -88,18 +89,18 @@
     });
 
     const form = document.getElementById('login-form');
-    const errorEl = document.getElementById('error-msg'); // Define error element
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email regex
+    const errorEl = document.getElementById('error-msg');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Handle form submission for login
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      errorEl.textContent = ''; // Clear previous error messages
+      errorEl.clear();
 
       const email = form.email.value;
       // Validate email format using regex
       if (!emailRegex.test(email)) {
-        errorEl.textContent = 'Please enter a valid email address.'; // Use errorEl for message
+        errorEl.show('Please enter a valid email address.');
         form.email.focus();
         return;
       }
@@ -119,7 +120,7 @@
         }
       } catch(err) {
         // Display Firebase authentication errors directly on the page
-        errorEl.textContent = err.message;
+        errorEl.show(err.message);
       }
     });
   </script>

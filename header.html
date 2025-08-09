@@ -1,40 +1,36 @@
-<header class="sticky top-0 z-50 relative flex items-center justify-between p-4 bg-white/80 backdrop-blur shadow">
-  <!-- Centered logo and name -->
-  <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
-    <a href="index.html">
-      <img src="TradeStone%20Logo.png" alt="TradeStone logo" class="h-8 w-auto">
-    </a>
-    <h1 class="text-xl font-bold">TradeStone</h1>
-  </div>
+<header class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md z-50">
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #E67E22;   /* warm orange */
+      --secondary: #2C3E50; /* dark blue-grey */
+      --neutral-bg: #F9F9F9;
+    }
+    /* Apply base typography, background and space for the fixed header */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--neutral-bg);
+      padding-top: 4rem; /* prevent content being hidden behind header */
+    }
+  </style>
 
-  <!-- Right side icons -->
-  <div class="ml-auto flex items-center space-x-4">
-    <!-- Burger menu button visible on all screen sizes -->
-    <button id="burger-btn" class="focus:outline-none">
-      <span class="sr-only">Menu</span>
-      <svg class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-    <!-- Profile icon -->
-    <a id="profile-link" href="login.html">
-      <span class="sr-only">Dashboard</span>
-      <svg class="h-6 w-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
-      </svg>
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="flex items-center space-x-2">
+      <img src="TradeStone Logo.png" alt="TradeStone logo" class="h-8 w-auto" />
+      <span class="font-bold text-xl">TradeStone</span>
     </a>
-  </div>
 
-  <!-- Dropdown menu -->
-  <div id="burger-menu" class="hidden fixed inset-y-0 right-0 w-64 transform translate-x-full transition-transform bg-white border-l border-gray-200 p-4 space-y-2">
-    <a href="browse-pros.html" class="block px-4 py-2 hover:bg-gray-100">Browse</a>
-    <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-100">Marketplace</a>
-    <a href="contracts.html" class="block px-4 py-2 hover:bg-gray-100">Contracts</a>
-    <a href="post-contract.html" class="block px-4 py-2 hover:bg-gray-100">Post Contract</a>
-    <a href="post.html" class="block px-4 py-2 hover:bg-gray-100">Post Item</a>
-    <a href="blog.html" class="block px-4 py-2 hover:bg-gray-100">Blog</a>
-    <a href="messages.html" class="block px-4 py-2 hover:bg-gray-100">Messages</a>
-    <a href="signup.html" class="block px-4 py-2 hover:bg-gray-100">Sign Up</a>
-    <a href="login.html" class="block px-4 py-2 hover:bg-gray-100">Log In</a>
+    <nav class="hidden md:flex items-center space-x-6">
+      <a href="browse-pros.html" class="hover:text-[var(--primary)]">Browse</a>
+      <a href="marketplace.html" class="hover:text-[var(--primary)]">Marketplace</a>
+      <a href="contracts.html" class="hover:text-[var(--primary)]">Contracts</a>
+      <a href="blog.html" class="hover:text-[var(--primary)]">Blog</a>
+    </nav>
+
+    <div class="flex items-center space-x-4">
+      <a href="login.html" class="text-sm hover:text-[var(--primary)]">Log In</a>
+      <a href="signup.html" class="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-semibold hover:bg-orange-700 transition-colors">Sign Up</a>
+    </div>
   </div>
 </header>

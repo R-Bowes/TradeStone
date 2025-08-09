@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choose Account Type – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans pb-16">
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
@@ -16,10 +17,10 @@
   <main class="max-w-md mx-auto mt-12 p-4 bg-white rounded-xl shadow text-center space-y-6">
     <h1 class="text-2xl font-bold">Sign Up</h1>
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="professional-signup.html" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold">Professional Sign Up</a>
-      <a href="personal-signup.html" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold">Personal Sign Up</a>
+      <a href="professional-signup.html" class="btn-primary">Professional Sign Up</a>
+      <a href="personal-signup.html" class="btn-primary">Personal Sign Up</a>
     </div>
-    <p class="text-sm">Already have an account? <a href="login.html" class="text-orange-600 font-medium">Log in</a></p>
+    <p class="text-sm">Already have an account? <a href="login.html" class="text-orange-600 font-medium hover:underline">Log in</a></p>
   </main>
 
   <div id="footer"></div>

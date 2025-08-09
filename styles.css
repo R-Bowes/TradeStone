@@ -1,0 +1,49 @@
+/* Global Styles to modernize look */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+/* Card component */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+  padding: 1rem 2rem;
+  background-color: #ea580c; /* orange-600 */
+  color: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+.btn-primary:hover {
+  background-color: #c2410c; /* orange-700 */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  padding: 1rem 2rem;
+  color: #ea580c; /* orange-600 */
+  border: 2px solid #ea580c;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+.btn-secondary:hover {
+  background-color: #fff7ed; /* orange-50 */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}

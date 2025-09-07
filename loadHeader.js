@@ -14,6 +14,7 @@ export async function loadHeader() {
     const btn = container.querySelector('#burger-btn');
     const menu = container.querySelector('#burger-menu');
     if (btn && menu) {
+      menu.style.backgroundColor = '#ffffff';
       btn.addEventListener('click', () => {
         menu.classList.toggle('translate-x-full');
         menu.classList.toggle('hidden');

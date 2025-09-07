@@ -94,7 +94,7 @@
       contentEl.textContent = post.content;
       hammerCount.textContent = post.hammerCount || 0;
       const symbol = ACCOUNT_SYMBOLS[post.accountType] || '';
-      metaEl.textContent = `${symbol} ${post.author}`;
+      metaEl.textContent = `${symbol} ${post.author}${post.accountType === 'professional' ? ' (Pro)' : ''}`;
       if (post.hammeredBy?.includes(hammerUserId)) {
         hammerBtn.disabled = true;
       }

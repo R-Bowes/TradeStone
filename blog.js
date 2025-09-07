@@ -1,59 +1,92 @@
-import { initFirebase } from './firebase-init.js';
-import { collection, query, orderBy, addDoc, getDocs, getDoc, doc, serverTimestamp, setDoc, updateDoc, deleteDoc, increment } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+const STORAGE_KEY = 'tradestone_blog';
 
-const { db } = initFirebase();
+const defaultData = {
+  posts: [
+    {
+      id: 'p1',
+      title: 'Welcome to the TradeStone Blog',
+      content: 'This is a demo post about using hammers.',
+      hammerCount: 0,
+      comments: [
+        { id: 'c1', text: 'Nice post!', hammerCount: 0 }
+      ]
+    },
+    {
+      id: 'p2',
+      title: 'Second Post',
+      content: 'Another sample post to show the blog working.',
+      hammerCount: 0,
+      comments: []
+    }
+  ]
+};
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      // fall through to default
+    }
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+  return JSON.parse(localStorage.getItem(STORAGE_KEY));
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
 
 export async function createPost(userId, title, content) {
-  const ref = await addDoc(collection(db, 'posts'), {
-    authorId: userId,
-    title,
-    content,
-    createdAt: serverTimestamp(),
-    hammerCount: 0
-  });
-  return ref.id;
+  const data = loadData();
+  const id = Date.now().toString();
+  data.posts.unshift({ id, title, content, hammerCount: 0, comments: [] });
+  saveData(data);
+  return id;
 }
 
 export async function getPosts() {
-  const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const data = loadData();
+  return data.posts;
 }
 
 export async function getPost(id) {
-  const snap = await getDoc(doc(db, 'posts', id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  const data = loadData();
+  return data.posts.find(p => p.id === id) || null;
 }
 
 export async function addComment(postId, userId, text) {
-  await addDoc(collection(db, 'posts', postId, 'comments'), {
-    authorId: userId,
-    text,
-    createdAt: serverTimestamp()
-  });
-}
-
-export async function getComments(postId) {
-  const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt'));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
-export async function toggleHammer(postId, userId) {
-  const hammerRef = doc(db, 'posts', postId, 'hammers', userId);
-  const hammerSnap = await getDoc(hammerRef);
-  if (hammerSnap.exists()) {
-    await deleteDoc(hammerRef);
-    await updateDoc(doc(db, 'posts', postId), { hammerCount: increment(-1) });
-    return false;
-  } else {
-    await setDoc(hammerRef, { createdAt: serverTimestamp() });
-    await updateDoc(doc(db, 'posts', postId), { hammerCount: increment(1) });
-    return true;
+  const data = loadData();
+  const post = data.posts.find(p => p.id === postId);
+  if (post) {
+    post.comments.push({ id: Date.now().toString(), text, hammerCount: 0 });
+    saveData(data);
   }
 }
 
-export async function hasHammered(postId, userId) {
-  const snap = await getDoc(doc(db, 'posts', postId, 'hammers', userId));
-  return snap.exists();
+export async function getComments(postId) {
+  const post = await getPost(postId);
+  return post ? post.comments : [];
+}
+
+export async function toggleHammer(postId) {
+  const data = loadData();
+  const post = data.posts.find(p => p.id === postId);
+  if (post) {
+    post.hammerCount = (post.hammerCount || 0) + 1;
+    saveData(data);
+  }
+}
+
+export async function toggleCommentHammer(postId, commentId) {
+  const data = loadData();
+  const post = data.posts.find(p => p.id === postId);
+  if (post) {
+    const comment = post.comments.find(c => c.id === commentId);
+    if (comment) {
+      comment.hammerCount = (comment.hammerCount || 0) + 1;
+      saveData(data);
+    }
+  }
 }

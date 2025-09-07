@@ -139,7 +139,8 @@
         const meta = document.createElement('div');
         meta.className = 'text-xs text-gray-500 mt-2';
         const symbol = ACCOUNT_SYMBOLS[post.accountType] || '';
-        meta.textContent = `${symbol} ${post.author} · ${post.comments.length} comments`;
+        const proTag = post.accountType === 'professional' ? 'Pro' : '';
+        meta.textContent = `${symbol} ${post.author} ${proTag ? '(' + proTag + ')' : ''} · ${post.comments.length} comments`;
 
         content.appendChild(h3);
         content.appendChild(preview);

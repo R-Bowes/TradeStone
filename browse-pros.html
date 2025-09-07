@@ -39,6 +39,22 @@
         <p class="font-medium mb-2">Trade Type</p>
         <div class="space-y-1" id="trade-list"></div>
       </div>
+      <div>
+        <label for="radius-filter" class="block mb-1 font-medium">Min Service Radius (miles)</label>
+        <input id="radius-filter" type="number" class="w-full p-2 border rounded" placeholder="e.g., 25" />
+      </div>
+      <div class="flex items-center">
+        <input id="availability-filter" type="checkbox" class="mr-2" />
+        <label for="availability-filter">Available Now</label>
+      </div>
+      <div>
+        <label for="rating-filter" class="block mb-1 font-medium">Minimum Rating</label>
+        <input id="rating-filter" type="number" min="0" max="5" step="0.1" class="w-full p-2 border rounded" placeholder="e.g., 4.0" />
+      </div>
+      <div class="flex items-center">
+        <input id="verified-filter" type="checkbox" class="mr-2" />
+        <label for="verified-filter">Verified</label>
+      </div>
       <button id="apply-filters" class="w-full py-2 bg-orange-500 text-white rounded">Apply Filters</button>
     </aside>
 
@@ -71,8 +87,21 @@
       }
 
       const name = document.createElement('h2');
-      name.className = 'text-lg font-bold';
+      name.className = 'text-lg font-bold flex items-center gap-2';
       name.textContent = profileData.businessName || 'N/A';
+      if (profileData.accountTier === 'pro' || profileData.isPro) {
+        const proBadge = document.createElement('span');
+        proBadge.textContent = 'Pro';
+        proBadge.className = 'bg-orange-500 text-white text-xs px-2 py-0.5 rounded';
+        name.appendChild(proBadge);
+      }
+      if (profileData.verified) {
+        const v = document.createElement('span');
+        v.textContent = '✔';
+        v.title = 'Verified';
+        v.className = 'text-green-500 text-sm';
+        name.appendChild(v);
+      }
 
       const trade = document.createElement('p');
       trade.className = 'text-sm text-gray-700';
@@ -143,12 +172,21 @@
       const searchTerm = document.getElementById('search').value.toLowerCase();
       const locationTerm = document.getElementById('location-filter').value.toLowerCase();
       const selectedTrades = Array.from(document.querySelectorAll('.trade-checkbox:checked')).map(cb => cb.value);
+      const radiusVal = parseFloat(document.getElementById('radius-filter').value);
+      const availableNow = document.getElementById('availability-filter').checked;
+      const minRating = parseFloat(document.getElementById('rating-filter').value);
+      const verifiedOnly = document.getElementById('verified-filter').checked;
 
       const filtered = allProfiles.filter(p => {
         const nameMatch = !searchTerm || (p.businessName || '').toLowerCase().includes(searchTerm);
         const locationMatch = !locationTerm || (p.location || '').toLowerCase().includes(locationTerm);
         const tradeMatch = selectedTrades.length === 0 || (p.specializations && selectedTrades.some(trade => p.specializations.includes(trade)));
-        return nameMatch && locationMatch && tradeMatch;
+        const radiusMatch = isNaN(radiusVal) || (p.travelRadius && Number(p.travelRadius) >= radiusVal);
+        const availabilityMatch = !availableNow || p.availableNow || p.availability === 'available';
+        const ratingValue = typeof p.avgRating === 'number' ? p.avgRating : p.rating;
+        const ratingMatch = isNaN(minRating) || (typeof ratingValue === 'number' && ratingValue >= minRating);
+        const verifiedMatch = !verifiedOnly || p.verified;
+        return nameMatch && locationMatch && tradeMatch && radiusMatch && availabilityMatch && ratingMatch && verifiedMatch;
       });
 
       list.innerHTML = ''; // Clear previous results
@@ -175,6 +213,10 @@
     document.getElementById('search').addEventListener('input', filterAndRender);
     document.getElementById('location-filter').addEventListener('input', filterAndRender);
     document.querySelectorAll('.trade-checkbox').forEach(cb => cb.addEventListener('change', filterAndRender));
+    document.getElementById('radius-filter').addEventListener('input', filterAndRender);
+    document.getElementById('availability-filter').addEventListener('change', filterAndRender);
+    document.getElementById('rating-filter').addEventListener('input', filterAndRender);
+    document.getElementById('verified-filter').addEventListener('change', filterAndRender);
     document.getElementById('apply-filters').addEventListener('click', filterAndRender);
 
     // Initial load

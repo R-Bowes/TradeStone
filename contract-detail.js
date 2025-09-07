@@ -15,9 +15,12 @@ const params = new URLSearchParams(window.location.search);
 const contractId = params.get('id');
 
 const titleEl = document.getElementById('contract-title');
-const descEl = document.getElementById('contract-description');
+const scopeEl = document.getElementById('contract-scope');
 const budgetEl = document.getElementById('contract-budget');
 const locationEl = document.getElementById('contract-location');
+const dueDateEl = document.getElementById('contract-due-date');
+const issuerEl = document.getElementById('contract-issuer');
+const approvalEl = document.getElementById('contract-approval');
 const docsEl = document.getElementById('contract-documents');
 const questionsEl = document.getElementById('contract-questions');
 const bidForm = document.getElementById('bid-form');
@@ -26,6 +29,7 @@ const statusEl = document.getElementById('status-msg');
 
 let currentUser = null;
 let isPro = false;
+let contractData = null;
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
@@ -48,10 +52,15 @@ async function loadContract() {
     return;
   }
   const data = snap.data();
+  contractData = data;
   titleEl.textContent = data.title || 'Untitled';
-  descEl.textContent = data.description || '';
+  scopeEl.textContent = data.scope || data.description || '';
   budgetEl.textContent = data.budget ? `Budget: £${Number(data.budget).toFixed(2)}` : '';
   locationEl.textContent = data.location || '';
+  dueDateEl.textContent = data.dueDate ? `Due Date: ${data.dueDate}` : '';
+  approvalEl.textContent =
+    data.approved !== undefined ? `Status: ${data.approved ? 'Approved' : 'Pending'}` : '';
+  if (data.issuer) loadIssuer(data.issuer);
   loadDocuments();
   loadQuestions();
 }
@@ -86,8 +95,15 @@ async function loadQuestions() {
   }
   const list = document.createElement('ul');
   snap.forEach(d => {
+    const info = d.data();
+    if (
+      info.private &&
+      (!currentUser || (currentUser.uid !== info.asker && currentUser.uid !== (contractData?.issuer || '')))
+    ) {
+      return;
+    }
     const li = document.createElement('li');
-    li.textContent = d.data().text || '';
+    li.textContent = info.text || '';
     list.appendChild(li);
   });
   questionsEl.appendChild(list);
@@ -117,3 +133,17 @@ async function addToWatchlist() {
 }
 
 loadContract();
+
+async function loadIssuer(id) {
+  try {
+    const snap = await getDoc(doc(db, 'profiles', id));
+    if (snap.exists()) {
+      const info = snap.data();
+      issuerEl.textContent = `Issuer: ${info.displayName || info.name || id}`;
+    } else {
+      issuerEl.textContent = `Issuer: ${id}`;
+    }
+  } catch {
+    issuerEl.textContent = `Issuer: ${id}`;
+  }
+}

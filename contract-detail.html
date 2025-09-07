@@ -25,6 +25,10 @@
     <form id="bid-form" class="space-y-2 hidden">
       <input id="bid-amount" type="number" step="0.01" min="0" required class="w-full p-2 border rounded" placeholder="Bid Amount (£)">
       <textarea id="bid-message" class="w-full p-2 border rounded" placeholder="Message"></textarea>
+      <textarea id="bid-milestones" class="w-full p-2 border rounded" placeholder="Milestones (one per line)"></textarea>
+      <input id="bid-timeline" type="date" class="w-full p-2 border rounded" />
+      <input id="bid-portfolio" type="url" class="w-full p-2 border rounded" placeholder="Portfolio URL">
+      <input id="bid-files" type="file" multiple class="w-full" />
       <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded">Submit Bid</button>
     </form>
     <button id="watch-btn" class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hidden">Add to Watchlist</button>

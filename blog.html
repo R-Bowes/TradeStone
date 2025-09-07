@@ -26,28 +26,20 @@
     <div id="posts-list" class="space-y-4"></div>
   </main>
 
-  <script src="firebase-config.js"></script>
   <script type="module">
-    import { initFirebase } from './firebase-init.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
-    import { createPost, getPosts } from './blog.js';
+    import { createPost, getPosts, getPost, toggleHammer } from './blog.js';
 
-    const { auth } = initFirebase();
     const form = document.getElementById('post-form');
     const list = document.getElementById('posts-list');
     const searchInput = document.getElementById('search');
     let allPosts = [];
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        form.classList.remove('hidden');
-        form.addEventListener('submit', async e => {
-          e.preventDefault();
-          await createPost(user.uid, form.title.value, form.content.value);
-          form.reset();
-          loadPosts();
-        });
-      }
+    form.classList.remove('hidden');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      await createPost('anon', form.title.value, form.content.value);
+      form.reset();
+      loadPosts();
     });
 
     async function loadPosts() {
@@ -87,13 +79,18 @@
         const truncated = post.content.slice(0, 100) + (post.content.length > 100 ? '...' : '');
         preview.textContent = truncated;
 
-        const hammerP = document.createElement('p');
-        hammerP.className = 'text-xs text-gray-500';
-        hammerP.textContent = `Hammers: ${post.hammerCount || 0}`;
+        const hammerBtn = document.createElement('button');
+        hammerBtn.className = 'text-sm text-gray-600';
+        hammerBtn.textContent = `🔨 ${post.hammerCount || 0}`;
+        hammerBtn.addEventListener('click', async () => {
+          await toggleHammer(post.id);
+          const updated = await getPost(post.id);
+          hammerBtn.textContent = `🔨 ${updated.hammerCount || 0}`;
+        });
 
         div.appendChild(h3);
         div.appendChild(preview);
-        div.appendChild(hammerP);
+        div.appendChild(hammerBtn);
         list.appendChild(div);
       }
     }

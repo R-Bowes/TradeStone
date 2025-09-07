@@ -9,8 +9,9 @@ import {
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
 
-const { db, auth } = initFirebase();
+const { db, auth, storage } = initFirebase();
 const params = new URLSearchParams(window.location.search);
 const contractId = params.get('id');
 
@@ -112,10 +113,33 @@ async function loadQuestions() {
 async function submitBid(e) {
   e.preventDefault();
   if (!currentUser || !isPro) return;
+  const filesInput = document.getElementById('bid-files');
+  const milestonesText = document.getElementById('bid-milestones').value;
+  const timeline = document.getElementById('bid-timeline').value;
+  const portfolio = document.getElementById('bid-portfolio').value.trim();
+
+  const milestones = milestonesText
+    .split('\n')
+    .map(m => m.trim())
+    .filter(Boolean);
+
+  const uploadedFiles = [];
+  if (filesInput && filesInput.files) {
+    for (const f of filesInput.files) {
+      const r = ref(storage, `bids/${contractId}/${currentUser.uid}/${f.name}`);
+      await uploadBytes(r, f);
+      uploadedFiles.push(await getDownloadURL(r));
+    }
+  }
+
   await addDoc(collection(db, 'contracts', contractId, 'bids'), {
     bidder: currentUser.uid,
     amount: parseFloat(document.getElementById('bid-amount').value) || 0,
     message: document.getElementById('bid-message').value.trim(),
+    milestones,
+    timeline,
+    portfolio,
+    files: uploadedFiles,
     createdAt: serverTimestamp()
   });
   bidForm.reset();

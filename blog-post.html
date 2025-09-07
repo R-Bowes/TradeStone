@@ -15,6 +15,7 @@
 
   <main class="max-w-2xl mx-auto p-4 bg-white rounded-xl shadow">
     <h2 id="title" class="text-2xl font-bold mb-2"></h2>
+    <p id="meta" class="text-sm text-gray-500 mb-2"></p>
     <p id="content" class="mb-4"></p>
     <button id="hammer-btn" class="bg-orange-500 text-white px-3 py-1 rounded mb-4">🔨 (<span id="hammer-count">0</span>)</button>
     <div id="comments" class="space-y-2"></div>
@@ -26,11 +27,13 @@
 
   <script type="module">
     import { getPost, getComments, addComment, toggleHammer, toggleCommentHammer } from './blog.js';
+    import { initSupabase } from './supabase-init.js';
 
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('id');
 
     const titleEl = document.getElementById('title');
+    const metaEl = document.getElementById('meta');
     const contentEl = document.getElementById('content');
     const hammerBtn = document.getElementById('hammer-btn');
     const hammerCount = document.getElementById('hammer-count');
@@ -38,15 +41,45 @@
     const commentForm = document.getElementById('comment-form');
     const commentText = document.getElementById('comment-text');
 
+    const supabase = initSupabase();
+    let currentUser = null;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('account_type')
+        .eq('id', session.user.id)
+        .single();
+      if (!error) {
+        currentUser = { id: session.user.id, email: session.user.email, accountType: data.account_type };
+      }
+    }
+
+    const ACCOUNT_SYMBOLS = { professional: '🛠️', personal: '👤' };
+
+    function getGuestId() {
+      let id = localStorage.getItem('guest-id');
+      if (!id) {
+        id = 'guest-' + Date.now();
+        localStorage.setItem('guest-id', id);
+      }
+      return id;
+    }
+
+    const hammerUserId = currentUser ? currentUser.id : getGuestId();
+
     hammerBtn.addEventListener('click', async () => {
-      await toggleHammer(postId);
-      const post = await getPost(postId);
-      hammerCount.textContent = post.hammerCount || 0;
+      const changed = await toggleHammer(postId, hammerUserId);
+      if (changed) {
+        const post = await getPost(postId);
+        hammerCount.textContent = post.hammerCount || 0;
+        hammerBtn.disabled = true;
+      }
     });
 
     commentForm.addEventListener('submit', async e => {
       e.preventDefault();
-      await addComment(postId, 'anon', commentText.value);
+      await addComment(postId, currentUser ? currentUser.id : 'anon', commentText.value);
       commentForm.reset();
       loadComments();
     });
@@ -60,6 +93,11 @@
       titleEl.textContent = post.title;
       contentEl.textContent = post.content;
       hammerCount.textContent = post.hammerCount || 0;
+      const symbol = ACCOUNT_SYMBOLS[post.accountType] || '';
+      metaEl.textContent = `${symbol} ${post.author}`;
+      if (post.hammeredBy?.includes(hammerUserId)) {
+        hammerBtn.disabled = true;
+      }
     }
 
     async function loadComments() {
@@ -77,9 +115,14 @@
         const btn = document.createElement('button');
         btn.className = 'text-sm text-gray-600';
         btn.textContent = `🔨 ${c.hammerCount || 0}`;
+        if (c.hammeredBy?.includes(hammerUserId)) {
+          btn.disabled = true;
+        }
         btn.addEventListener('click', async () => {
-          await toggleCommentHammer(postId, c.id);
-          loadComments();
+          const changed = await toggleCommentHammer(postId, c.id, hammerUserId);
+          if (changed) {
+            loadComments();
+          }
         });
         div.appendChild(span);
         div.appendChild(btn);

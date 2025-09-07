@@ -7,8 +7,11 @@ const defaultData = {
       title: 'Welcome to the TradeStone Blog',
       content: 'This is a demo post about using hammers.',
       hammerCount: 0,
+      hammeredBy: [],
+      author: 'Demo Pro',
+      accountType: 'professional',
       comments: [
-        { id: 'c1', text: 'Nice post!', hammerCount: 0 }
+        { id: 'c1', text: 'Nice post!', hammerCount: 0, hammeredBy: [] }
       ]
     },
     {
@@ -16,6 +19,9 @@ const defaultData = {
       title: 'Second Post',
       content: 'Another sample post to show the blog working.',
       hammerCount: 0,
+      hammeredBy: [],
+      author: 'Demo Personal',
+      accountType: 'personal',
       comments: []
     }
   ]
@@ -38,10 +44,19 @@ function saveData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export async function createPost(userId, title, content) {
+export async function createPost(user, title, content) {
   const data = loadData();
   const id = Date.now().toString();
-  data.posts.unshift({ id, title, content, hammerCount: 0, comments: [] });
+  data.posts.unshift({
+    id,
+    title,
+    content,
+    hammerCount: 0,
+    hammeredBy: [],
+    comments: [],
+    author: user.email,
+    accountType: user.accountType,
+  });
   saveData(data);
   return id;
 }
@@ -60,7 +75,7 @@ export async function addComment(postId, userId, text) {
   const data = loadData();
   const post = data.posts.find(p => p.id === postId);
   if (post) {
-    post.comments.push({ id: Date.now().toString(), text, hammerCount: 0 });
+    post.comments.push({ id: Date.now().toString(), text, hammerCount: 0, hammeredBy: [] });
     saveData(data);
   }
 }
@@ -70,23 +85,35 @@ export async function getComments(postId) {
   return post ? post.comments : [];
 }
 
-export async function toggleHammer(postId) {
+export async function toggleHammer(postId, userId) {
   const data = loadData();
   const post = data.posts.find(p => p.id === postId);
   if (post) {
-    post.hammerCount = (post.hammerCount || 0) + 1;
-    saveData(data);
+    post.hammeredBy = post.hammeredBy || [];
+    if (!post.hammeredBy.includes(userId)) {
+      post.hammeredBy.push(userId);
+      post.hammerCount = (post.hammerCount || 0) + 1;
+      saveData(data);
+      return true;
+    }
   }
+  return false;
 }
 
-export async function toggleCommentHammer(postId, commentId) {
+export async function toggleCommentHammer(postId, commentId, userId) {
   const data = loadData();
   const post = data.posts.find(p => p.id === postId);
   if (post) {
     const comment = post.comments.find(c => c.id === commentId);
     if (comment) {
-      comment.hammerCount = (comment.hammerCount || 0) + 1;
-      saveData(data);
+      comment.hammeredBy = comment.hammeredBy || [];
+      if (!comment.hammeredBy.includes(userId)) {
+        comment.hammeredBy.push(userId);
+        comment.hammerCount = (comment.hammerCount || 0) + 1;
+        saveData(data);
+        return true;
+      }
     }
   }
+  return false;
 }

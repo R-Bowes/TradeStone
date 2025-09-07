@@ -25,6 +25,14 @@ function createCard(contract) {
   const card = document.createElement('div');
   card.className = 'bg-white rounded-lg shadow p-4 flex flex-col space-y-2';
 
+  if (contract.image) {
+    const img = document.createElement('img');
+    img.src = contract.image;
+    img.alt = contract.title;
+    img.className = 'w-full h-32 object-cover mb-2 rounded';
+    card.appendChild(img);
+  }
+
   const title = document.createElement('h2');
   title.className = 'text-lg font-bold';
   title.textContent = contract.title;
@@ -42,6 +50,13 @@ function createCard(contract) {
     card.appendChild(loc);
   }
 
+  if (contract.distance) {
+    const dist = document.createElement('p');
+    dist.className = 'text-sm text-gray-700';
+    dist.textContent = `${contract.distance} miles away`;
+    card.appendChild(dist);
+  }
+
   if (contract.budget) {
     const bud = document.createElement('p');
     bud.className = 'text-sm text-gray-700';
@@ -49,15 +64,27 @@ function createCard(contract) {
     card.appendChild(bud);
   }
 
+  if (contract.tags && contract.tags.length) {
+    const tags = document.createElement('div');
+    tags.className = 'flex flex-wrap gap-1';
+    contract.tags.forEach(t => {
+      const span = document.createElement('span');
+      span.textContent = t;
+      span.className = 'text-xs bg-gray-200 rounded px-2 py-1';
+      tags.appendChild(span);
+    });
+    card.appendChild(tags);
+  }
+
   const view = document.createElement('a');
   view.href = `contract-detail.html?id=${contract.id}`;
-  view.textContent = 'View Details';
+  view.textContent = 'View';
   view.className = 'text-orange-500 hover:underline';
   card.appendChild(view);
 
   const btn = document.createElement('button');
-  btn.textContent = 'Apply';
-  btn.className = 'mt-auto bg-orange-500 text-white px-4 py-1 rounded';
+  btn.textContent = 'Bid';
+  btn.className = 'mt-auto inline-block px-4 py-2 bg-[var(--primary)] text-white rounded font-semibold';
   btn.addEventListener('click', () => applyForContract(contract.id));
   card.appendChild(btn);
 

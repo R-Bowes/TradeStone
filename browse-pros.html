@@ -106,22 +106,33 @@
       if (profileData.travelRadius && profileData.location) {
         radiusEl.textContent = `Covers ${profileData.travelRadius} miles from ${profileData.location}`;
       }
-      
-      // Create a container for links for better layout control
+
+      if (profileData.tags && profileData.tags.length) {
+        const tags = document.createElement('div');
+        tags.className = 'flex flex-wrap gap-1';
+        profileData.tags.forEach(t => {
+          const span = document.createElement('span');
+          span.textContent = t;
+          span.className = 'text-xs bg-gray-200 rounded px-2 py-1';
+          tags.appendChild(span);
+        });
+        card.appendChild(tags);
+      }
+
       const linksContainer = document.createElement('div');
-      linksContainer.className = 'pt-2 mt-auto'; // 'mt-auto' pushes links to the bottom
+      linksContainer.className = 'pt-2 mt-auto';
 
       const profileLink = document.createElement('a');
       profileLink.href = `professional-profile.html?id=${profileData.id}`;
       profileLink.className = 'text-orange-500 block hover:underline';
       profileLink.textContent = 'View Profile';
 
-      const portfolioLink = document.createElement('a');
-      portfolioLink.href = `portfolio.html?id=${profileData.id}`;
-      portfolioLink.className = 'text-orange-500 block hover:underline';
-      portfolioLink.textContent = 'View Portfolio';
+      const contactBtn = document.createElement('a');
+      contactBtn.href = `messages.html?to=${profileData.id}`;
+      contactBtn.className = 'mt-2 inline-block px-4 py-2 bg-[var(--primary)] text-white rounded text-center font-semibold';
+      contactBtn.textContent = 'Contact';
 
-      linksContainer.append(profileLink, portfolioLink);
+      linksContainer.append(profileLink, contactBtn);
       if (DEMO_MODE) {
         const demoLink = document.createElement('a');
         demoLink.href = '#';
@@ -132,7 +143,7 @@
           const html = `<h2 class="text-lg font-bold mb-2">${profileData.businessName || 'Demo Professional'}</h2><p>Latest review: "Excellent work!"</p><p>Worked previously in ${profileData.location || 'various locations'}.</p>`;
           showDemo(html);
         });
-        linksContainer.appendChild(demoLink);
+      linksContainer.appendChild(demoLink);
       }
       card.append(name, trade, locationEl, ratingEl, radiusEl, linksContainer);
       return card;

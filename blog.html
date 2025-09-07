@@ -28,16 +28,43 @@
 
   <script type="module">
     import { createPost, getPosts, getPost, toggleHammer } from './blog.js';
+    import { initSupabase } from './supabase-init.js';
 
     const form = document.getElementById('post-form');
     const list = document.getElementById('posts-list');
     const searchInput = document.getElementById('search');
     let allPosts = [];
+    let currentUser = null;
 
-    form.classList.remove('hidden');
+    const supabase = initSupabase();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('account_type')
+        .eq('id', session.user.id)
+        .single();
+      if (!error) {
+        currentUser = { id: session.user.id, email: session.user.email, accountType: data.account_type };
+        form.classList.remove('hidden');
+      }
+    }
+
+    const ACCOUNT_SYMBOLS = { professional: '🛠️', personal: '👤' };
+
+    function getGuestId() {
+      let id = localStorage.getItem('guest-id');
+      if (!id) {
+        id = 'guest-' + Date.now();
+        localStorage.setItem('guest-id', id);
+      }
+      return id;
+    }
+
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      await createPost('anon', form.title.value, form.content.value);
+      if (!currentUser) return;
+      await createPost(currentUser, form.title.value, form.content.value);
       form.reset();
       loadPosts();
     });
@@ -62,6 +89,7 @@
         list.innerHTML = '<p class="text-center">No posts found.</p>';
         return;
       }
+      const hammerUserId = currentUser ? currentUser.id : getGuestId();
       for (const post of filtered) {
         const div = document.createElement('div');
         div.className = 'flex bg-white p-4 rounded shadow';
@@ -75,10 +103,18 @@
         const count = document.createElement('span');
         count.className = 'text-sm';
         count.textContent = post.hammerCount || 0;
+        if (post.hammeredBy?.includes(hammerUserId)) {
+          upBtn.disabled = true;
+          upBtn.classList.add('text-orange-500');
+        }
         upBtn.addEventListener('click', async () => {
-          await toggleHammer(post.id);
-          const updated = await getPost(post.id);
-          count.textContent = updated.hammerCount || 0;
+          const changed = await toggleHammer(post.id, hammerUserId);
+          if (changed) {
+            const updated = await getPost(post.id);
+            count.textContent = updated.hammerCount || 0;
+            upBtn.disabled = true;
+            upBtn.classList.add('text-orange-500');
+          }
         });
 
         vote.appendChild(upBtn);
@@ -102,7 +138,8 @@
 
         const meta = document.createElement('div');
         meta.className = 'text-xs text-gray-500 mt-2';
-        meta.textContent = `${post.comments.length} comments`;
+        const symbol = ACCOUNT_SYMBOLS[post.accountType] || '';
+        meta.textContent = `${symbol} ${post.author} · ${post.comments.length} comments`;
 
         content.appendChild(h3);
         content.appendChild(preview);

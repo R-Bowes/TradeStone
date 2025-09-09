@@ -15,9 +15,9 @@
       padding-top: 4rem; /* prevent content being hidden behind header */
       padding-bottom: 4rem; /* space for sticky footer */
     }
-    /* Ensure burger menu is visible on mobile */
+    /* Ensure burger menu uses solid background */
     #burger-menu {
-      background-color: #ffffff;
+      background-color: var(--neutral-bg);
     }
   </style>
 
@@ -46,7 +46,7 @@
     </button>
   </div>
 
-  <div id="burger-menu" class="md:hidden fixed top-0 right-0 w-64 h-full bg-white shadow-md transform translate-x-full transition-transform hidden" style="background-color: #ffffff">
+  <div id="burger-menu" class="md:hidden fixed top-0 right-0 w-64 h-full shadow-md transform translate-x-full transition-transform hidden">
     <nav class="flex flex-col p-6 space-y-4">
       <a href="index.html" class="hover:text-[var(--primary)]">Home</a>
       <a href="marketplace.html" class="hover:text-[var(--primary)]">Marketplace</a>

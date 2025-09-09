@@ -6,14 +6,14 @@
   <title>Post – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans min-h-screen flex flex-col">
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <main class="max-w-2xl mx-auto p-4 bg-white rounded-xl shadow">
+  <main class="max-w-2xl mx-auto p-4 bg-white rounded-xl shadow flex-grow">
     <h2 id="title" class="text-2xl font-bold mb-2"></h2>
     <p id="meta" class="text-sm text-gray-500 mb-2"></p>
     <p id="content" class="mb-4"></p>

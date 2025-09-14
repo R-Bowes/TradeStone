@@ -37,7 +37,7 @@
           Sign up free
         </button>
     </form>
-    <div id="error-msg" class="text-red-500 mt-2 text-center"></div>
+    <error-message id="error-msg"></error-message>
   </main>
 
   <div class="text-center mt-6">
@@ -56,46 +56,43 @@
     </a>
   </div>
 
-  <script src="firebase-config.js"></script>
+  <script src="supabase-config.js"></script>
   <script type="module">
-    // Import necessary Firebase modules
-    import { onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-    // Import your centralized Firebase initialization
-    import { initFirebase } from './firebase-init.js';
+    import './error-message.js';
+    import { initSupabase } from './supabase-init.js';
 
-    // Initialize Firebase services using your centralized function
-    const { auth, db } = initFirebase();
+    const supabase = initSupabase();
 
-    // Check if a user is already logged in and redirect them
-    onAuthStateChanged(auth, async user => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      const user = session?.user;
       if (user) {
-        const snap = await getDoc(doc(db, 'users', user.uid));
-        if (snap.exists()) {
-          const { accountType } = snap.data();
-          window.location.href = accountType === 'professional'
+        const { data, error } = await supabase
+          .from('users')
+          .select('account_type')
+          .eq('id', user.id)
+          .single();
+        if (!error && data) {
+          const { account_type } = data;
+          window.location.href = account_type === 'professional'
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
-          // Fallback if user exists in auth but not in Firestore 'users' collection
           window.location.href = 'index.html';
         }
       }
     });
 
     const form = document.getElementById('signup-form');
-    const errorEl = document.getElementById('error-msg'); // Define error element
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email regex
+    const errorEl = document.getElementById('error-msg');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Handle form submission for signup
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      errorEl.textContent = ''; // Clear any previous error messages
+      errorEl.clear();
 
       const email       = form.email.value;
-      // Validate email format using regex
       if (!emailRegex.test(email)) {
-        errorEl.textContent = 'Please enter a valid email address.'; // Use errorEl for message
+        errorEl.show('Please enter a valid email address.');
         form.email.focus();
         return;
       }
@@ -103,30 +100,31 @@
       const confirm     = form.confirmPassword.value;
       const accountType = form.accountType.value;
 
-      // Validate passwords match
       if (password !== confirm) {
-        errorEl.textContent = 'Passwords do not match.';
+        errorEl.show('Passwords do not match.');
         return;
       }
 
-      try {
-        // Create user with email and password
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        // Save user account type and default notification settings to Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-          accountType,
-          notifications: { emailUpdates: true, smsUpdates: true } // Default notifications
-        });
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (signUpError) {
+        errorEl.show(signUpError.message);
+        return;
+      }
 
-        // Redirect based on account type
-        if (accountType === 'professional') {
-          window.location.href = 'create-profile.html';
-        } else {
-          window.location.href = 'create-personal-profile.html';
-        }
-      } catch(err) {
-        // Display Firebase authentication errors directly on the page
-        errorEl.textContent = err.message;
+      const { error: insertError } = await supabase.from('users').insert({
+        id: signUpData.user.id,
+        account_type: accountType,
+        notifications: { emailUpdates: true, smsUpdates: true }
+      });
+      if (insertError) {
+        errorEl.show(insertError.message);
+        return;
+      }
+
+      if (accountType === 'professional') {
+        window.location.href = 'create-profile.html';
+      } else {
+        window.location.href = 'create-personal-profile.html';
       }
     });
   </script>

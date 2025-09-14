@@ -60,29 +60,27 @@
     </a>
   </div>
 
-  <script src="firebase-config.js"></script>
+  <script src="supabase-config.js"></script>
   <script type="module">
     import './error-message.js';
-    // Import necessary Firebase modules
-    import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-    // Import your centralized Firebase initialization
-    import { initFirebase } from './firebase-init.js';
+    import { initSupabase } from './supabase-init.js';
 
-    // Initialize Firebase services using your centralized function
-    const { auth, db } = initFirebase();
+    const supabase = initSupabase();
 
-    // Check if a user is already logged in and redirect them
-    onAuthStateChanged(auth, async user => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      const user = session?.user;
       if (user) {
-        const snap = await getDoc(doc(db, 'users', user.uid));
-        if (snap.exists()) {
-          const { accountType } = snap.data();
-          window.location.href = accountType === 'professional'
+        const { data, error } = await supabase
+          .from('users')
+          .select('account_type')
+          .eq('id', user.id)
+          .single();
+        if (!error && data) {
+          const { account_type } = data;
+          window.location.href = account_type === 'professional'
             ? 'professional-dashboard.html'
             : 'personal-dashboard.html';
         } else {
-          // Fallback if user exists in auth but not in Firestore 'users' collection
           window.location.href = 'index.html';
         }
       }
@@ -92,13 +90,11 @@
     const errorEl = document.getElementById('error-msg');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Handle form submission for login
     form.addEventListener('submit', async e => {
       e.preventDefault();
       errorEl.clear();
 
       const email = form.email.value;
-      // Validate email format using regex
       if (!emailRegex.test(email)) {
         errorEl.show('Please enter a valid email address.');
         form.email.focus();
@@ -106,22 +102,27 @@
       }
       const password = form.password.value;
 
-      try {
-        const { user } = await signInWithEmailAndPassword(auth, email, password);
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const { accountType } = userDoc.data();
-          window.location.href = accountType === 'professional'
-            ? 'professional-dashboard.html'
-            : 'personal-dashboard.html';
-        } else {
-          // This case should ideally not happen if signup creates the user doc correctly
-          window.location.href = 'index.html';
-        }
-      } catch(err) {
-        // Display Firebase authentication errors directly on the page
-        errorEl.show(err.message);
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        errorEl.show(signInError.message);
+        return;
       }
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('account_type')
+        .eq('id', signInData.user.id)
+        .single();
+
+      if (error) {
+        errorEl.show(error.message);
+        return;
+      }
+
+      const { account_type } = data;
+      window.location.href = account_type === 'professional'
+        ? 'professional-dashboard.html'
+        : 'personal-dashboard.html';
     });
   </script>
 

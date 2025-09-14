@@ -87,5 +87,15 @@
       .then(html => { document.getElementById('footer').innerHTML = html; })
       .catch(err => console.error('Failed to load footer', err));
   </script>
+  <script type="module">
+    import { supabase } from './js/supabaseClient.js';
+
+    // example: read rows
+    const { data, error } = await supabase
+      .from('listings')
+      .select('*')
+      .limit(10);
+    console.log(data, error);
+  </script>
 </body>
 </html>

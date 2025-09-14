@@ -5,10 +5,36 @@ import { DEMO_MODE, showDemo } from "./demo-placeholder.js";
 const { db } = initFirebase();
 let allItems = [];
 const list = document.getElementById('item-list');
+let userLocation = null;
+
+const params = new URLSearchParams(window.location.search);
+document.getElementById('search').value = params.get('search') || '';
+document.getElementById('location-filter').value = params.get('location') || '';
+document.getElementById('radius').value = params.get('radius') || '';
+
+const catParam = (params.get('cats') || '').split(',').filter(Boolean);
+catParam.forEach(val => {
+  const cb = document.querySelector(`.cat-checkbox[value="${val}"]`);
+  if (cb) cb.checked = true;
+});
+
+const ageParam = (params.get('ages') || '').split(',').filter(Boolean);
+ageParam.forEach(val => {
+  const cb = document.querySelector(`.age-checkbox[value="${val}"]`);
+  if (cb) cb.checked = true;
+});
+
+if (params.get('lat') && params.get('lng')) {
+  userLocation = { lat: parseFloat(params.get('lat')), lng: parseFloat(params.get('lng')) };
+}
+
+loadSavedSearches();
 
 function createCard(item) {
+  const link = document.createElement('a');
+  link.href = `listing-detail.html?id=${item.id}`;
   const card = document.createElement('div');
-  card.className = 'bg-white rounded-lg shadow p-4 flex flex-col space-y-2';
+  card.className = 'bg-white rounded-lg shadow p-4 flex flex-col space-y-2 cursor-pointer';
 
   if (item.images && item.images.length) {
     const img = document.createElement('img');
@@ -77,16 +103,18 @@ function createCard(item) {
     });
     card.appendChild(demoLink);
   }
-  return card;
+  link.appendChild(card);
+  return link;
 }
 
 function filterAndRender() {
   const search = document.getElementById('search').value.toLowerCase();
   const location = document.getElementById('location-filter').value.trim().toLowerCase();
+  const radiusVal = parseFloat(document.getElementById('radius').value);
   const selectedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
   const selectedAges = Array.from(document.querySelectorAll('.age-checkbox:checked')).map(cb => cb.value);
 
-  const filtered = allItems.filter(it => {
+  let filtered = allItems.filter(it => {
     const matchText = !search || (it.title && it.title.toLowerCase().includes(search)) || (it.description && it.description.toLowerCase().includes(search));
     const matchCat = selectedCats.length === 0 || selectedCats.includes(it.category);
     const matchAge = selectedAges.length === 0 || selectedAges.includes(it.condition);
@@ -94,12 +122,71 @@ function filterAndRender() {
     return matchText && matchCat && matchAge && matchLocation;
   });
 
+  if (!isNaN(radiusVal) && userLocation) {
+    filtered = filtered.filter(it => {
+      if (!it.coords) return false;
+      const d = getDistance(userLocation.lat, userLocation.lng, it.coords.lat, it.coords.lng);
+      return d <= radiusVal;
+    });
+  }
+
   list.innerHTML = '';
   if (filtered.length === 0) {
     list.innerHTML = '<p class="text-gray-700 text-center col-span-full">No items found.</p>';
   } else {
     filtered.forEach(it => list.appendChild(createCard(it)));
   }
+
+  updateURL(search, location, selectedCats, selectedAges, radiusVal);
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function updateURL(search, location, cats, ages, radiusVal) {
+  const p = new URLSearchParams();
+  if (search) p.set('search', search);
+  if (location) p.set('location', location);
+  if (cats.length) p.set('cats', cats.join(','));
+  if (ages.length) p.set('ages', ages.join(','));
+  if (!isNaN(radiusVal) && radiusVal > 0) p.set('radius', radiusVal);
+  if (userLocation) {
+    p.set('lat', userLocation.lat);
+    p.set('lng', userLocation.lng);
+  }
+  history.replaceState(null, '', '?' + p.toString());
+}
+
+function loadSavedSearches() {
+  const saved = JSON.parse(localStorage.getItem('savedSearches') || '[]');
+  const select = document.getElementById('saved-searches');
+  select.innerHTML = '<option value="">Saved Searches</option>';
+  if (saved.length) {
+    select.classList.remove('hidden');
+    saved.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = s.name;
+      select.appendChild(opt);
+    });
+  } else {
+    select.classList.add('hidden');
+  }
+}
+
+function saveCurrentSearch() {
+  const name = prompt('Name this search');
+  if (!name) return;
+  const saved = JSON.parse(localStorage.getItem('savedSearches') || '[]');
+  saved.push({ name, params: new URLSearchParams(window.location.search).toString() });
+  localStorage.setItem('savedSearches', JSON.stringify(saved));
+  loadSavedSearches();
 }
 
 async function loadItems() {
@@ -114,5 +201,24 @@ async function loadItems() {
 }
 
 document.getElementById('apply-filters').addEventListener('click', filterAndRender);
+document.getElementById('near-me').addEventListener('click', () => {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    filterAndRender();
+  });
+});
+document.getElementById('save-search').addEventListener('click', saveCurrentSearch);
+document.getElementById('saved-searches').addEventListener('change', e => {
+  const saved = JSON.parse(localStorage.getItem('savedSearches') || '[]');
+  const sel = saved[e.target.value];
+  if (sel) window.location.search = sel.params;
+});
+document.getElementById('toggle-map').addEventListener('click', () => {
+  const map = document.getElementById('map');
+  map.classList.toggle('hidden');
+  const btn = document.getElementById('toggle-map');
+  btn.textContent = map.classList.contains('hidden') ? 'Show Map' : 'Hide Map';
+});
 loadItems();
 

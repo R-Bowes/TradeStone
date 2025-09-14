@@ -1,4 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
+// Dynamic import of the Supabase client so that the app works both in
+// Node.js (for scripts or tests) and directly in the browser without a
+// bundler.  The previous implementation relied on a bare import
+// (`@supabase/supabase-js`) which browsers cannot resolve on their own,
+// causing login pages that use this helper to fail to load.
+let createClient;
+if (typeof window === 'undefined') {
+  // Node/SSR environment – use the installed package.
+  ({ createClient } = await import('@supabase/supabase-js'));
+} else {
+  // Browser environment – load the ESM build from a CDN.
+  ({ createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'));
+}
 
 const supabaseUrl = 'https://ifjapjnxgkgtyjqlrriu.supabase.co';
 

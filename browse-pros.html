@@ -6,7 +6,7 @@
   <title>Browse Professionals – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans min-h-screen flex flex-col">
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
@@ -39,10 +39,26 @@
         <p class="font-medium mb-2">Trade Type</p>
         <div class="space-y-1" id="trade-list"></div>
       </div>
+      <div>
+        <label for="radius-filter" class="block mb-1 font-medium">Min Service Radius (miles)</label>
+        <input id="radius-filter" type="number" class="w-full p-2 border rounded" placeholder="e.g., 25" />
+      </div>
+      <div class="flex items-center">
+        <input id="availability-filter" type="checkbox" class="mr-2" />
+        <label for="availability-filter">Available Now</label>
+      </div>
+      <div>
+        <label for="rating-filter" class="block mb-1 font-medium">Minimum Rating</label>
+        <input id="rating-filter" type="number" min="0" max="5" step="0.1" class="w-full p-2 border rounded" placeholder="e.g., 4.0" />
+      </div>
+      <div class="flex items-center">
+        <input id="verified-filter" type="checkbox" class="mr-2" />
+        <label for="verified-filter">Verified</label>
+      </div>
       <button id="apply-filters" class="w-full py-2 bg-orange-500 text-white rounded">Apply Filters</button>
     </aside>
 
-    <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pro-list">
+    <main class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow" id="pro-list">
     </main>
   </div>
 
@@ -71,8 +87,21 @@
       }
 
       const name = document.createElement('h2');
-      name.className = 'text-lg font-bold';
+      name.className = 'text-lg font-bold flex items-center gap-2';
       name.textContent = profileData.businessName || 'N/A';
+      if (profileData.accountTier === 'pro' || profileData.isPro) {
+        const proBadge = document.createElement('span');
+        proBadge.textContent = 'Pro';
+        proBadge.className = 'bg-orange-500 text-white text-xs px-2 py-0.5 rounded';
+        name.appendChild(proBadge);
+      }
+      if (profileData.verified) {
+        const v = document.createElement('span');
+        v.textContent = '✔';
+        v.title = 'Verified';
+        v.className = 'text-green-500 text-sm';
+        name.appendChild(v);
+      }
 
       const trade = document.createElement('p');
       trade.className = 'text-sm text-gray-700';
@@ -106,22 +135,33 @@
       if (profileData.travelRadius && profileData.location) {
         radiusEl.textContent = `Covers ${profileData.travelRadius} miles from ${profileData.location}`;
       }
-      
-      // Create a container for links for better layout control
+
+      if (profileData.tags && profileData.tags.length) {
+        const tags = document.createElement('div');
+        tags.className = 'flex flex-wrap gap-1';
+        profileData.tags.forEach(t => {
+          const span = document.createElement('span');
+          span.textContent = t;
+          span.className = 'text-xs bg-gray-200 rounded px-2 py-1';
+          tags.appendChild(span);
+        });
+        card.appendChild(tags);
+      }
+
       const linksContainer = document.createElement('div');
-      linksContainer.className = 'pt-2 mt-auto'; // 'mt-auto' pushes links to the bottom
+      linksContainer.className = 'pt-2 mt-auto';
 
       const profileLink = document.createElement('a');
       profileLink.href = `professional-profile.html?id=${profileData.id}`;
       profileLink.className = 'text-orange-500 block hover:underline';
       profileLink.textContent = 'View Profile';
 
-      const portfolioLink = document.createElement('a');
-      portfolioLink.href = `portfolio.html?id=${profileData.id}`;
-      portfolioLink.className = 'text-orange-500 block hover:underline';
-      portfolioLink.textContent = 'View Portfolio';
+      const contactBtn = document.createElement('a');
+      contactBtn.href = `messages.html?to=${profileData.id}`;
+      contactBtn.className = 'mt-2 inline-block px-4 py-2 bg-[var(--primary)] text-white rounded text-center font-semibold';
+      contactBtn.textContent = 'Contact';
 
-      linksContainer.append(profileLink, portfolioLink);
+      linksContainer.append(profileLink, contactBtn);
       if (DEMO_MODE) {
         const demoLink = document.createElement('a');
         demoLink.href = '#';
@@ -132,7 +172,7 @@
           const html = `<h2 class="text-lg font-bold mb-2">${profileData.businessName || 'Demo Professional'}</h2><p>Latest review: "Excellent work!"</p><p>Worked previously in ${profileData.location || 'various locations'}.</p>`;
           showDemo(html);
         });
-        linksContainer.appendChild(demoLink);
+      linksContainer.appendChild(demoLink);
       }
       card.append(name, trade, locationEl, ratingEl, radiusEl, linksContainer);
       return card;
@@ -143,12 +183,21 @@
       const searchTerm = document.getElementById('search').value.toLowerCase();
       const locationTerm = document.getElementById('location-filter').value.toLowerCase();
       const selectedTrades = Array.from(document.querySelectorAll('.trade-checkbox:checked')).map(cb => cb.value);
+      const radiusVal = parseFloat(document.getElementById('radius-filter').value);
+      const availableNow = document.getElementById('availability-filter').checked;
+      const minRating = parseFloat(document.getElementById('rating-filter').value);
+      const verifiedOnly = document.getElementById('verified-filter').checked;
 
       const filtered = allProfiles.filter(p => {
         const nameMatch = !searchTerm || (p.businessName || '').toLowerCase().includes(searchTerm);
         const locationMatch = !locationTerm || (p.location || '').toLowerCase().includes(locationTerm);
         const tradeMatch = selectedTrades.length === 0 || (p.specializations && selectedTrades.some(trade => p.specializations.includes(trade)));
-        return nameMatch && locationMatch && tradeMatch;
+        const radiusMatch = isNaN(radiusVal) || (p.travelRadius && Number(p.travelRadius) >= radiusVal);
+        const availabilityMatch = !availableNow || p.availableNow || p.availability === 'available';
+        const ratingValue = typeof p.avgRating === 'number' ? p.avgRating : p.rating;
+        const ratingMatch = isNaN(minRating) || (typeof ratingValue === 'number' && ratingValue >= minRating);
+        const verifiedMatch = !verifiedOnly || p.verified;
+        return nameMatch && locationMatch && tradeMatch && radiusMatch && availabilityMatch && ratingMatch && verifiedMatch;
       });
 
       list.innerHTML = ''; // Clear previous results
@@ -175,6 +224,10 @@
     document.getElementById('search').addEventListener('input', filterAndRender);
     document.getElementById('location-filter').addEventListener('input', filterAndRender);
     document.querySelectorAll('.trade-checkbox').forEach(cb => cb.addEventListener('change', filterAndRender));
+    document.getElementById('radius-filter').addEventListener('input', filterAndRender);
+    document.getElementById('availability-filter').addEventListener('change', filterAndRender);
+    document.getElementById('rating-filter').addEventListener('input', filterAndRender);
+    document.getElementById('verified-filter').addEventListener('change', filterAndRender);
     document.getElementById('apply-filters').addEventListener('click', filterAndRender);
 
     // Initial load

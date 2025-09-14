@@ -2,91 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post Item – TradeStone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post a listing – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="theme-color" content="#f97316" />
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
+  <!-- Header -->
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <main class="max-w-md mx-auto p-4 bg-white rounded-xl shadow">
-    <h2 class="text-2xl font-bold mb-4 text-center">Post Item</h2>
-    <form id="item-form" class="space-y-4" enctype="multipart/form-data">
-      <div class="form-step" data-step="1">
-        <div>
-          <label for="title" class="block mb-1">Title</label>
-          <input id="title" name="title" type="text" required class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label for="category" class="block mb-1">Category</label>
-          <select id="category" name="category" class="w-full p-2 border rounded">
-            <option value="Tools">Tools</option>
-            <option value="Materials">Materials</option>
-            <option value="Vehicles">Vehicles</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label for="condition" class="block mb-1">Condition</label>
-          <select id="condition" name="condition" class="w-full p-2 border rounded">
-            <option value="New">New</option>
-            <option value="Used">Used</option>
-            <option value="Unused">Unused</option>
-          </select>
-        </div>
-        <button type="button" class="next-step w-full py-2 bg-orange-500 text-white rounded">Next</button>
-      </div>
+  <!-- Main -->
+  <main class="max-w-md mx-auto w-full p-4 flex-1">
+    <section class="bg-white rounded-xl shadow p-4">
+      <h1 class="text-2xl font-bold mb-1 text-center">Post a listing</h1>
+      <p class="text-sm text-gray-600 text-center mb-4">Complete the steps below to publish your item.</p>
 
-      <div class="form-step hidden" data-step="2">
-        <div>
-          <label for="description" class="block mb-1">Description</label>
-          <textarea id="description" name="description" rows="3" class="w-full p-2 border rounded" required></textarea>
-        </div>
-        <div>
-          <label for="price" class="block mb-1">Price (£)</label>
-          <input id="price" name="price" type="number" step="0.01" min="0" required class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label for="stock" class="block mb-1">Stock Quantity</label>
-          <input id="stock" name="stock" type="number" min="1" class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label for="images" class="block mb-1">Photos</label>
-          <input id="images" name="images" type="file" accept="image/*" multiple class="w-full" />
-        </div>
-        <div class="flex justify-between">
-          <button type="button" class="prev-step bg-gray-200 px-4 py-2 rounded">Back</button>
-          <button type="button" class="next-step bg-orange-500 text-white px-4 py-2 rounded">Next</button>
-        </div>
-      </div>
+      <!-- Stepper -->
+      <ol class="flex items-center justify-between text-sm mb-4" aria-label="Form steps">
+        <li class="step-pill data-[active=true]:bg-orange-500 data-[active=true]:text-white bg-gray-200 text-gray-700 rounded-full px-3 py-1" data-step="1">1. Basics</li>
+        <li class="step-pill data-[active=true]:bg-orange-500 data-[active=true]:text-white bg-gray-200 text-gray-700 rounded-full px-3 py-1" data-step="2">2. Details</li>
+        <li class="step-pill data-[active=true]:bg-orange-500 data-[active=true]:text-white bg-gray-200 text-gray-700 rounded-full px-3 py-1" data-step="3">3. Location</li>
+      </ol>
 
-      <div class="form-step hidden" data-step="3">
-        <div>
-          <label for="location" class="block mb-1">Location</label>
-          <input id="location" name="location" type="text" class="w-full p-2 border rounded" required />
-          <button type="button" id="use-location" class="mt-2 bg-gray-200 px-2 py-1 rounded">Use my location</button>
-          <input type="hidden" id="lat" name="lat" />
-          <input type="hidden" id="lng" name="lng" />
+      <form id="item-form" class="space-y-4" enctype="multipart/form-data" novalidate>
+        <!-- STEP 1 -->
+        <div class="form-step" data-step="1">
+          <div>
+            <label for="title" class="block mb-1 font-medium">Title<span class="text-red-600">*</span></label>
+            <input id="title" name="title" type="text" required
+                   class="w-full p-2 border rounded-lg"
+                   placeholder="e.g., DeWalt Cordless Drill 18V" />
+          </div>
+
+          <div>
+            <label for="category" class="block mb-1 font-medium">Category<span class="text-red-600">*</span></label>
+            <select id="category" name="category" required class="w-full p-2 border rounded-lg">
+              <option value="Tools">Tools</option>
+              <option value="Materials">Materials</option>
+              <option value="Vehicles">Vehicles</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="condition" class="block mb-1 font-medium">Condition<span class="text-red-600">*</span></label>
+            <select id="condition" name="condition" required class="w-full p-2 border rounded-lg">
+              <option value="New">New</option>
+              <option value="Used">Used</option>
+              <option value="Unused">Unused</option>
+            </select>
+          </div>
+
+          <button type="button"
+                  class="next-step w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+            Next
+          </button>
         </div>
-        <div>
-          <label for="delivery" class="block mb-1">Collection/Delivery Options</label>
-          <input id="delivery" name="delivery" type="text" class="w-full p-2 border rounded" />
+
+        <!-- STEP 2 -->
+        <div class="form-step hidden" data-step="2">
+          <div>
+            <label for="description" class="block mb-1 font-medium">Description<span class="text-red-600">*</span></label>
+            <textarea id="description" name="description" rows="4" required
+                      class="w-full p-2 border rounded-lg"
+                      placeholder="Key features, condition details, inclusions, etc."></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="price" class="block mb-1 font-medium">Price (£)<span class="text-red-600">*</span></label>
+              <input id="price" name="price" type="number" step="0.01" min="0" inputmode="decimal" required
+                     class="w-full p-2 border rounded-lg" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="stock" class="block mb-1 font-medium">Stock Quantity</label>
+              <input id="stock" name="stock" type="number" min="1" inputmode="numeric"
+                     class="w-full p-2 border rounded-lg" placeholder="1" />
+            </div>
+          </div>
+
+          <div>
+            <label for="images" class="block mb-1 font-medium">Photos</label>
+            <input id="images" name="images" type="file" accept="image/*" multiple class="w-full" />
+            <p class="text-xs text-gray-500 mt-1">Up to 10 images. Large files may take longer to upload.</p>
+            <div id="image-previews" class="mt-2 grid grid-cols-5 gap-2"></div>
+          </div>
+
+          <div class="flex justify-between gap-2">
+            <button type="button" class="prev-step bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg">Back</button>
+            <button type="button" class="next-step bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">Next</button>
+          </div>
         </div>
-        <div id="error-msg" class="text-red-500 text-center"></div>
-        <div class="flex justify-between">
-          <button type="button" class="prev-step bg-gray-200 px-4 py-2 rounded">Back</button>
-          <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded">Post Item</button>
+
+        <!-- STEP 3 -->
+        <div class="form-step hidden" data-step="3">
+          <div>
+            <label for="location" class="block mb-1 font-medium">Location<span class="text-red-600">*</span></label>
+            <input id="location" name="location" type="text" required
+                   class="w-full p-2 border rounded-lg"
+                   placeholder="e.g., London, UK" />
+            <div class="flex items-center gap-2 mt-2">
+              <button type="button" id="use-location"
+                      class="bg-gray-200 hover:bg-gray-300 px-3 py-1.5 rounded-lg">
+                Use my location
+              </button>
+              <span class="text-xs text-gray-500">We’ll only store coordinates you allow.</span>
+            </div>
+            <input type="hidden" id="lat" name="lat" />
+            <input type="hidden" id="lng" name="lng" />
+          </div>
+
+          <div>
+            <label for="delivery" class="block mb-1 font-medium">Collection/Delivery Options</label>
+            <input id="delivery" name="delivery" type="text" class="w-full p-2 border rounded-lg"
+                   placeholder="e.g., Collection only, Delivery within 10 miles for £10" />
+          </div>
+
+          <div class="flex justify-between gap-2">
+            <button type="button" class="prev-step bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg">Back</button>
+            <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">
+              Post Item
+            </button>
+          </div>
         </div>
-      </div>
-    </form>
-    <div id="status-msg" class="text-red-500 mt-2 text-center"></div>
+
+        <!-- Messages -->
+        <div id="error-msg" class="text-red-600 text-center" aria-live="polite"></div>
+        <div id="status-msg" class="text-green-600 text-center" aria-live="polite"></div>
+      </form>
+    </section>
   </main>
 
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <!-- Firebase config first (non-module) -->
   <script src="firebase-config.js"></script>
+
+  <!-- App logic -->
   <script type="module">
     import { initFirebase } from './firebase-init.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
@@ -94,20 +151,64 @@
     import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js';
 
     const { auth, db, storage } = initFirebase();
+
+    // Footer include
+    (async () => {
+      try {
+        const res = await fetch('footer.html');
+        document.getElementById('footer').innerHTML = await res.text();
+      } catch (e) {
+        console.error('Failed to load footer.html', e);
+      }
+    })();
+
     const form = document.getElementById('item-form');
     const errorEl = document.getElementById('error-msg');
     const statusEl = document.getElementById('status-msg');
-
+    const stepPills = Array.from(document.querySelectorAll('.step-pill'));
     const steps = Array.from(document.querySelectorAll('.form-step'));
     let currentStep = 1;
+
+    function setStepPills(step) {
+      stepPills.forEach(p => p.dataset.active = String(p.dataset.step == step));
+    }
     function showStep(step) {
       steps.forEach(s => s.classList.toggle('hidden', s.dataset.step != step));
       currentStep = step;
+      setStepPills(step);
+      // Focus first focusable input in step for accessibility
+      const first = steps[step - 1].querySelector('input, textarea, select, button');
+      if (first) first.focus({ preventScroll: true });
     }
-    document.querySelectorAll('.next-step').forEach(btn => btn.addEventListener('click', () => showStep(currentStep + 1)));
-    document.querySelectorAll('.prev-step').forEach(btn => btn.addEventListener('click', () => showStep(currentStep - 1)));
+    setStepPills(1);
     showStep(1);
 
+    // Step navigation with basic validation for required fields in the current step
+    function validateCurrentStep() {
+      errorEl.textContent = '';
+      const stepEl = steps[currentStep - 1];
+      const required = Array.from(stepEl.querySelectorAll('[required]'));
+      for (const field of required) {
+        if (!field.value || (field.type === 'number' && isNaN(parseFloat(field.value)))) {
+          field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          field.classList.add('ring-2', 'ring-red-400');
+          setTimeout(() => field.classList.remove('ring-2', 'ring-red-400'), 1400);
+          errorEl.textContent = 'Please complete the required fields.';
+          return false;
+        }
+      }
+      return true;
+    }
+
+    document.querySelectorAll('.next-step').forEach(btn => btn.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
+      showStep(Math.min(currentStep + 1, steps.length));
+    }));
+    document.querySelectorAll('.prev-step').forEach(btn => btn.addEventListener('click', () => {
+      showStep(Math.max(currentStep - 1, 1));
+    }));
+
+    // Draft autosave (except files)
     const DRAFT_KEY = 'listingDraft';
     function saveDraft() {
       const data = {
@@ -122,38 +223,88 @@
         lat: form.lat.value,
         lng: form.lng.value
       };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch {}
     }
     function loadDraft() {
-      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-      Object.keys(draft).forEach(k => { if (form[k]) form[k].value = draft[k]; });
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+        Object.keys(draft).forEach(k => { if (form[k]) form[k].value = draft[k] ?? ''; });
+      } catch {}
     }
     Array.from(form.elements).forEach(el => {
-      if (el.name && el.type !== 'file') {
-        el.addEventListener('input', saveDraft);
-      }
+      if (el.name && el.type !== 'file') el.addEventListener('input', saveDraft);
     });
     loadDraft();
 
-    document.getElementById('use-location').addEventListener('click', () => {
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(pos => {
-        form.lat.value = pos.coords.latitude;
-        form.lng.value = pos.coords.longitude;
-        saveDraft();
+    // Image previews (client-side only)
+    const imageInput = document.getElementById('images');
+    const previewWrap = document.getElementById('image-previews');
+    if (imageInput && previewWrap) {
+      imageInput.addEventListener('change', () => {
+        previewWrap.innerHTML = '';
+        const files = Array.from(imageInput.files || []).slice(0, 10);
+        files.forEach(file => {
+          const url = URL.createObjectURL(file);
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = file.name;
+          img.className = 'w-full aspect-square object-cover rounded-lg border';
+          const cell = document.createElement('div');
+          cell.appendChild(img);
+          previewWrap.appendChild(cell);
+        });
       });
+    }
+
+    // Geolocation (coords only)
+    document.getElementById('use-location')?.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        errorEl.textContent = 'Geolocation is not supported on this device.';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          form.lat.value = pos.coords.latitude;
+          form.lng.value = pos.coords.longitude;
+          saveDraft();
+          statusEl.textContent = 'Location captured.';
+          setTimeout(() => (statusEl.textContent = ''), 2000);
+        },
+        err => {
+          errorEl.textContent = 'Could not get location permission.';
+          console.warn(err);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
     });
 
+    // Require login
     onAuthStateChanged(auth, user => {
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
 
-      form.addEventListener('submit', async e => {
+      // Submit
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorEl.textContent = '';
+        statusEl.textContent = '';
 
+        // Final validation across all required fields
+        const required = Array.from(form.querySelectorAll('[required]'));
+        for (const field of required) {
+          if (!field.value || (field.type === 'number' && isNaN(parseFloat(field.value)))) {
+            errorEl.textContent = 'Please fill in all required fields before posting.';
+            // Jump to the step containing this field
+            const stepEl = field.closest('.form-step');
+            if (stepEl) showStep(parseInt(stepEl.dataset.step, 10));
+            field.focus();
+            return;
+          }
+        }
+
+        // Build payload
         const data = {
           title: form.title.value.trim(),
           description: form.description.value.trim(),
@@ -161,45 +312,66 @@
           condition: form.condition.value,
           category: form.category.value,
           location: form.location.value.trim(),
-          stock: parseInt(form.stock.value) || 0,
+          stock: parseInt(form.stock.value, 10) || 0,
           delivery: form.delivery.value.trim(),
           postedBy: user.uid,
           createdAt: serverTimestamp()
         };
-
         if (form.lat.value && form.lng.value) {
           data.coords = { lat: parseFloat(form.lat.value), lng: parseFloat(form.lng.value) };
         }
-
-        if (!data.title || !data.description || !data.location || isNaN(data.price)) {
-          errorEl.textContent = 'Please fill in all required fields.';
+        if (!isFinite(data.price) || data.price < 0) {
+          errorEl.textContent = 'Please enter a valid price.';
           return;
         }
 
-        const files = Array.from(form.images.files);
-        const urls = [];
-        for (const file of files) {
-          const fileRef = ref(storage, `marketplace/${user.uid}/${Date.now()}-${file.name}`);
-          await uploadBytes(fileRef, file);
-          urls.push(await getDownloadURL(fileRef));
-        }
-        if (urls.length) {
-          data.images = urls;
-        }
+        // Disable submit to prevent double posts
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        submitBtn.textContent = 'Posting…';
 
-        await addDoc(collection(db, 'marketplaceItems'), data);
-        localStorage.removeItem(DRAFT_KEY);
-        form.reset();
-        showStep(1);
-        statusEl.textContent = 'Item posted!';
+        try {
+          // Upload images
+          const files = Array.from(form.images?.files || []).slice(0, 10);
+          const urls = [];
+          for (const file of files) {
+            const safeName = file.name.replace(/[^\w.\-]+/g, '_');
+            const fileRef = ref(storage, `marketplace/${user.uid}/${Date.now()}-${safeName}`);
+            await uploadBytes(fileRef, file);
+            urls.push(await getDownloadURL(fileRef));
+          }
+          if (urls.length) data.images = urls;
+
+          // Write doc
+          await addDoc(collection(db, 'marketplaceItems'), data);
+
+          // Reset + success
+          localStorage.removeItem(DRAFT_KEY);
+          form.reset();
+          showStep(1);
+          statusEl.textContent = 'Item posted!';
+        } catch (err) {
+          console.error(err);
+          errorEl.textContent = 'Failed to post item. Please try again.';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          submitBtn.textContent = 'Post Item';
+        }
       });
     });
   </script>
-  <div id="footer"></div>
+
+  <!-- Footer include (no module) -->
   <script>
-    fetch('footer.html')
-      .then(res => res.text())
-      .then(html => { document.getElementById('footer').innerHTML = html; });
+    // Fallback for older browsers if module load failed earlier (safe to re-run)
+    if (!document.getElementByIdooter').innerHTML) {
+      fetch('footer.html')
+        .then(r => r.text())
+        .then(html => { document.getElementById('footer').innerHTML = html; })
+        .catch(() => {});
+    }
   </script>
 </body>
 </html>

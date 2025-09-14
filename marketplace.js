@@ -66,6 +66,31 @@ function createCard(item) {
     card.appendChild(locationEl);
   }
 
+  if (item.distance) {
+    const dist = document.createElement('p');
+    dist.className = 'text-sm text-gray-700';
+    dist.textContent = `${item.distance} miles away`;
+    card.appendChild(dist);
+  }
+
+  if (item.tags && item.tags.length) {
+    const tags = document.createElement('div');
+    tags.className = 'flex flex-wrap gap-1';
+    item.tags.forEach(t => {
+      const span = document.createElement('span');
+      span.textContent = t;
+      span.className = 'text-xs bg-gray-200 rounded px-2 py-1';
+      tags.appendChild(span);
+    });
+    card.appendChild(tags);
+  }
+
+  const viewBtn = document.createElement('a');
+  viewBtn.href = `#`;
+  viewBtn.className = 'mt-auto inline-block px-4 py-2 bg-[var(--primary)] text-white rounded text-center font-semibold';
+  viewBtn.textContent = 'View';
+  card.appendChild(viewBtn);
+
   if (DEMO_MODE) {
     const demoLink = document.createElement('a');
     demoLink.href = '#';

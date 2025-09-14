@@ -6,18 +6,21 @@
   <title>Contract Detail – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans min-h-screen flex flex-col">
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <main id="contract-content" class="max-w-2xl mx-auto p-4 bg-white rounded-xl shadow">
+  <main id="contract-content" class="max-w-2xl mx-auto p-4 bg-white rounded-xl shadow flex-grow">
     <h2 id="contract-title" class="text-2xl font-bold mb-2"></h2>
-    <p id="contract-description" class="mb-4"></p>
+    <p id="contract-scope" class="mb-4"></p>
     <p id="contract-budget" class="text-gray-700"></p>
-    <p id="contract-location" class="text-gray-700 mb-4"></p>
+    <p id="contract-location" class="text-gray-700"></p>
+    <p id="contract-due-date" class="text-gray-700"></p>
+    <p id="contract-issuer" class="text-gray-700"></p>
+    <p id="contract-approval" class="text-gray-700 mb-4"></p>
 
     <div id="contract-documents" class="mb-6"></div>
     <div id="contract-questions" class="mb-6"></div>
@@ -25,6 +28,10 @@
     <form id="bid-form" class="space-y-2 hidden">
       <input id="bid-amount" type="number" step="0.01" min="0" required class="w-full p-2 border rounded" placeholder="Bid Amount (£)">
       <textarea id="bid-message" class="w-full p-2 border rounded" placeholder="Message"></textarea>
+      <textarea id="bid-milestones" class="w-full p-2 border rounded" placeholder="Milestones (one per line)"></textarea>
+      <input id="bid-timeline" type="date" class="w-full p-2 border rounded" />
+      <input id="bid-portfolio" type="url" class="w-full p-2 border rounded" placeholder="Portfolio URL">
+      <input id="bid-files" type="file" multiple class="w-full" />
       <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded">Submit Bid</button>
     </form>
     <button id="watch-btn" class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hidden">Add to Watchlist</button>

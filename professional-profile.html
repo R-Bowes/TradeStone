@@ -6,7 +6,7 @@
   <title>Professional Profile – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans min-h-screen flex flex-col">
 
   <!-- Reusable Header -->
   <div id="header"></div>
@@ -16,13 +16,26 @@
   </script>
 
   <!-- Profile Content -->
-  <main class="max-w-md mx-auto p-4 bg-white rounded-xl shadow text-center space-y-4">
+  <main class="max-w-md mx-auto p-4 bg-white rounded-xl shadow text-center space-y-4 flex-grow">
     <img id="logo" alt="" class="w-32 h-32 mx-auto object-contain hidden" />
-    <h2 id="businessName" class="text-2xl font-bold"></h2>
+    <h2 id="businessName" class="text-2xl font-bold flex items-center justify-center gap-2"></h2>
     <p id="companyId" class="text-sm text-gray-700"></p>
     <p id="tradeType" class="text-sm text-gray-700"></p>
     <p id="location" class="text-sm text-gray-700"></p>
+    <p id="serviceRadius" class="text-sm text-gray-700"></p>
+    <div id="specializations" class="text-sm text-gray-700"></div>
+    <div id="team" class="text-sm text-gray-700"></div>
     <p id="description" class="text-gray-800"></p>
+    <div id="portfolio-gallery" class="grid grid-cols-2 gap-2"></div>
+    <div id="reviews" class="space-y-2"></div>
+    <form id="quote-form" class="space-y-2 border-t pt-4">
+      <h3 class="text-lg font-semibold">Request quote</h3>
+      <input id="q-name" type="text" placeholder="Your Name" class="w-full p-2 border rounded" required />
+      <input id="q-email" type="email" placeholder="Email" class="w-full p-2 border rounded" required />
+      <textarea id="q-details" placeholder="Project details" class="w-full p-2 border rounded" required></textarea>
+      <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded">Send</button>
+      <div id="quote-status" class="text-sm"></div>
+    </form>
     <div id="social-links" class="flex justify-center flex-wrap gap-4"></div>
     <a id="portfolio-link" href="#" class="text-orange-500 font-medium block">View Portfolio</a>
     <a id="edit-link" href="#" class="text-orange-500 font-medium hidden">Edit Profile</a>
@@ -31,7 +44,7 @@
   <!-- Firebase Logic -->
   <script src="firebase-config.js"></script>
   <script type="module">
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+    import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
     import { initFirebase } from './firebase-init.js';
 
@@ -62,11 +75,61 @@
           logo.classList.remove('hidden');
         }
 
-        document.getElementById('businessName').textContent = data.businessName || '';
+        const nameEl = document.getElementById('businessName');
+        nameEl.textContent = data.businessName || '';
+        if (data.accountTier === 'pro' || data.isPro) {
+          const proBadge = document.createElement('span');
+          proBadge.textContent = 'Pro';
+          proBadge.className = 'bg-orange-500 text-white text-xs px-2 py-0.5 rounded';
+          nameEl.appendChild(proBadge);
+        }
+        if (data.verified) {
+          const v = document.createElement('span');
+          v.textContent = '✔';
+          v.title = 'Verified';
+          v.className = 'text-green-500 text-sm';
+          nameEl.appendChild(v);
+        }
         document.getElementById('companyId').textContent = data.companyId ? `ID: ${data.companyId}` : '';
         document.getElementById('tradeType').textContent = data.tradeType || '';
         document.getElementById('location').textContent = data.location || '';
+        document.getElementById('serviceRadius').textContent = data.travelRadius ? `Service radius: ${data.travelRadius} miles` : '';
+        document.getElementById('specializations').textContent = Array.isArray(data.specializations) && data.specializations.length ? `Specializations: ${data.specializations.join(', ')}` : '';
+        const teamNames = data.team || data.teamMembers;
+        document.getElementById('team').textContent = Array.isArray(teamNames) && teamNames.length ? `Team: ${teamNames.join(', ')}` : '';
         document.getElementById('description').textContent = data.description || '';
+        const gallery = document.getElementById('portfolio-gallery');
+        (data.portfolioUrls || []).forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Portfolio image';
+          img.className = 'w-full h-32 object-cover rounded';
+          gallery.appendChild(img);
+        });
+        const reviewsEl = document.getElementById('reviews');
+        (data.reviews || []).forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'text-left border rounded p-2';
+          const top = document.createElement('div');
+          top.className = 'flex items-center';
+          const author = document.createElement('span');
+          author.className = 'font-medium mr-2';
+          author.textContent = r.author || 'Anon';
+          top.appendChild(author);
+          if (typeof r.rating === 'number') {
+            for (let i = 1; i <= 5; i++) {
+              const star = document.createElement('span');
+              star.textContent = i <= Math.round(r.rating) ? '★' : '☆';
+              star.className = 'text-yellow-400';
+              top.appendChild(star);
+            }
+          }
+          div.appendChild(top);
+          const comment = document.createElement('p');
+          comment.textContent = r.comment || '';
+          div.appendChild(comment);
+          reviewsEl.appendChild(div);
+        });
         document.getElementById('portfolio-link').href = `portfolio.html?id=${id}`;
 
         const links = data.social || {};
@@ -87,6 +150,26 @@
     }
 
     loadProfile();
+
+    const quoteForm = document.getElementById('quote-form');
+    quoteForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('quote-status');
+      status.textContent = '';
+      try {
+        await addDoc(collection(db, 'quotes'), {
+          proId: id,
+          name: document.getElementById('q-name').value,
+          email: document.getElementById('q-email').value,
+          details: document.getElementById('q-details').value,
+          createdAt: serverTimestamp()
+        });
+        status.textContent = 'Request sent!';
+        quoteForm.reset();
+      } catch (err) {
+        status.textContent = 'Could not send request.';
+      }
+    });
 
     // Show edit link if current user matches profile
     onAuthStateChanged(auth, user => {

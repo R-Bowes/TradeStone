@@ -6,14 +6,14 @@
   <title>Personal Login – TradeStone</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 font-sans pb-16">
+<body class="text-gray-900 font-sans min-h-screen flex flex-col">
   <div id="header"></div>
   <script type="module">
     import { loadHeader } from './loadHeader.js';
     loadHeader();
   </script>
 
-  <main class="max-w-md mx-auto p-4 bg-white rounded-xl shadow">
+  <main class="max-w-md mx-auto p-4 bg-white rounded-xl shadow flex-grow">
     <h1 class="text-2xl font-bold mb-6 text-center">Personal Login</h1>
     <form id="login-form" class="space-y-4">
       <div>
@@ -39,8 +39,8 @@
       <p>Password: <code>demopass</code></p>
     </div>
     <p class="mt-4 text-center text-sm">
-      Don’t have an account?
-      <a href="personal-signup.html" class="text-orange-500 font-medium">Sign up</a>
+        Don’t have an account?
+        <a href="personal-signup.html" class="text-orange-500 font-medium">Sign up free</a>
     </p>
   </main>
 

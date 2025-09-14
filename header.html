@@ -13,10 +13,11 @@
       font-family: 'Inter', sans-serif;
       background-color: var(--neutral-bg);
       padding-top: 4rem; /* prevent content being hidden behind header */
+      padding-bottom: 4rem; /* space for sticky footer */
     }
-    /* Ensure burger menu is visible on mobile */
+    /* Ensure burger menu uses solid background */
     #burger-menu {
-      background-color: #ffffff;
+      background-color: var(--neutral-bg);
     }
   </style>
 
@@ -27,15 +28,15 @@
     </a>
 
     <nav class="hidden md:flex items-center space-x-6">
-      <a href="browse-pros.html" class="hover:text-[var(--primary)]">Browse</a>
+      <a href="index.html" class="hover:text-[var(--primary)]">Home</a>
       <a href="marketplace.html" class="hover:text-[var(--primary)]">Marketplace</a>
+      <a href="browse-pros.html" class="hover:text-[var(--primary)]">Hire</a>
       <a href="contracts.html" class="hover:text-[var(--primary)]">Contracts</a>
-      <a href="blog.html" class="hover:text-[var(--primary)]">Blog</a>
     </nav>
 
     <div class="hidden md:flex items-center space-x-4">
-      <a href="login.html" class="text-sm hover:text-[var(--primary)]">Log In</a>
-      <a href="signup.html" class="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-semibold hover:bg-orange-700 transition-colors">Sign Up</a>
+      <a href="login.html" class="text-sm hover:text-[var(--primary)]">Log in</a>
+      <a href="post.html" class="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-semibold hover:bg-orange-700 transition-colors">Post a listing</a>
     </div>
 
     <button id="burger-btn" class="md:hidden focus:outline-none">
@@ -45,14 +46,14 @@
     </button>
   </div>
 
-  <div id="burger-menu" class="md:hidden fixed top-0 right-0 w-64 h-full bg-white shadow-md transform translate-x-full transition-transform hidden" style="background-color: #ffffff">
+  <div id="burger-menu" class="md:hidden fixed top-0 right-0 w-64 h-full shadow-md transform translate-x-full transition-transform hidden">
     <nav class="flex flex-col p-6 space-y-4">
-      <a href="browse-pros.html" class="hover:text-[var(--primary)]">Browse</a>
+      <a href="index.html" class="hover:text-[var(--primary)]">Home</a>
       <a href="marketplace.html" class="hover:text-[var(--primary)]">Marketplace</a>
+      <a href="browse-pros.html" class="hover:text-[var(--primary)]">Hire</a>
       <a href="contracts.html" class="hover:text-[var(--primary)]">Contracts</a>
-      <a href="blog.html" class="hover:text-[var(--primary)]">Blog</a>
-      <a href="login.html" class="hover:text-[var(--primary)]">Log In</a>
-      <a href="signup.html" class="hover:text-[var(--primary)]">Sign Up</a>
+      <a href="login.html" class="hover:text-[var(--primary)]">Log in</a>
+      <a href="post.html" class="px-3 py-2 bg-[var(--primary)] text-white rounded">Post a listing</a>
     </nav>
   </div>
 </header>
